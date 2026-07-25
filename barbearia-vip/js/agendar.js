@@ -90,8 +90,12 @@ bookingForm.addEventListener('submit',async event=>{
   // A mesma validação é refeita dentro da transação, eliminando corrida entre clientes.
   const { data, error }=await supabaseClient.rpc('create_public_appointment',{p_barber_id:bookingData.professionalId,p_service_id:bookingData.serviceId,p_date:bookingData.date,p_time:bookingData.time,p_client_name:name,p_client_phone:phone,p_notes:notes||null});
   if(error){console.error(error);alert(error.message?.includes('HORARIO_INDISPONIVEL')?'Este horário não está disponível.':'Não foi possível concluir o agendamento.');await refreshAvailability();if(button)button.disabled=false;return;}
-  const newBooking={id:data,service:bookingData.service,professional:bookingData.professional,date:bookingData.date,time:bookingData.time,name,phone,notes,status:'Confirmado',durationMinutes:bookingData.durationMinutes,price:bookingData.price};
+  const newBooking={id:data,service:bookingData.service,professional:bookingData.professional,date:bookingData.date,time:bookingData.time,name,phone,notes,status:'Aguardando confirmação',durationMinutes:bookingData.durationMinutes,price:bookingData.price};
   localStorage.setItem('barbeariaVipLatestBookingNotification',JSON.stringify(newBooking));
+  // A reserva continua salva mesmo se o provedor de WhatsApp estiver temporariamente indisponível.
+  fetch('/api/send-whatsapp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bookingId:data})})
+    .then(response=>response.ok?null:response.json().then(result=>console.warn(result.error)))
+    .catch(error=>console.warn('Notificação do WhatsApp não enviada:',error));
   $('#successDetails').innerHTML=`<p><strong>Cliente:</strong> ${escapeHtml(name)}</p><p><strong>Serviço:</strong> ${escapeHtml(bookingData.service)}</p><p><strong>Profissional:</strong> ${escapeHtml(bookingData.professional)}</p><p><strong>Data:</strong> ${formatDate(bookingData.date)}</p><p><strong>Horário:</strong> ${bookingData.time}</p><p><strong>Valor:</strong> ${money(bookingData.price)}</p>`;
   bookingForm.style.display='none';$('#bookingSuccess').classList.add('visible');$('#whatsappConfirmation').onclick=()=>window.open(`https://wa.me/5593992396115?text=${encodeURIComponent(`Olá, gostaria de confirmar meu agendamento na Barbearia VIP.\n\nCliente: ${name}\nServiço: ${bookingData.service}\nProfissional: ${bookingData.professional}\nData: ${formatDate(bookingData.date)}\nHorário: ${bookingData.time}\nValor: ${money(bookingData.price)}`)}`,'_blank');window.scrollTo({top:0,behavior:'smooth'});
 });

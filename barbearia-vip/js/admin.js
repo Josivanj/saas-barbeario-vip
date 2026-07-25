@@ -320,11 +320,21 @@ function renderBookings() {
       <div><span>Barbeiro</span><strong>${escapeHtml(item.professional || "—")}</strong></div>
       <div><span>Data</span><strong>${formatDate(item.date)}</strong></div>
       <div><span>Horário</span><strong>${escapeHtml(item.time || "—")}</strong></div>
-      <div class="admin-status">${escapeHtml(item.status || "Confirmado")}</div>
+      <div class="admin-status">${escapeHtml(bookingStatusLabel(item.status))}</div>
     </article>
   `).join("");
 
   updateDashboard();
+}
+
+function bookingStatusLabel(status) {
+  return ({
+    pending: "Aguardando confirmação",
+    confirmed: "Confirmado pelo barbeiro",
+    completed: "Concluído",
+    cancelled: "Cancelado",
+    no_show: "Cliente não compareceu"
+  })[status] || status || "Aguardando confirmação";
 }
 
 function renderBusinessAdmins() {

@@ -466,7 +466,7 @@ begin
     raise exception 'HORARIO_INDISPONIVEL' using errcode='P0001';
   end if;
   insert into appointments(owner_id,barber_id,service_id,client_name,client_phone,appointment_date,appointment_time,duration_minutes,status,total,notes)
-  values(v_owner,p_barber_id,p_service_id,trim(p_client_name),trim(p_client_phone),p_date,p_time,v_duration,'confirmed',v_price,p_notes)
+  values(v_owner,p_barber_id,p_service_id,trim(p_client_name),trim(p_client_phone),p_date,p_time,v_duration,'pending',v_price,p_notes)
   returning id into v_id;
   return v_id;
 end; $$;
@@ -475,6 +475,51 @@ revoke all on function public.get_available_slots(uuid,uuid,date) from public;
 revoke all on function public.create_public_appointment(uuid,uuid,date,time,text,text,text) from public;
 grant execute on function public.get_available_slots(uuid,uuid,date) to anon,authenticated;
 grant execute on function public.create_public_appointment(uuid,uuid,date,time,text,text,text) to anon,authenticated;
+
+-- =========================================================
+-- CONFIRMAÇÃO DO BARBEIRO PELO WHATSAPP
+-- =========================================================
+alter table public.appointments
+  add column if not exists confirmation_token uuid not null default gen_random_uuid();
+create unique index if not exists appointments_confirmation_token_idx
+  on public.appointments(confirmation_token);
+
+create or replace function public.get_appointment_notification(p_appointment_id uuid)
+returns jsonb language sql security definer set search_path = public
+as $$
+  select jsonb_build_object(
+    'id',a.id,'client_name',a.client_name,'client_phone',a.client_phone,
+    'service',s.name,'barber',b.name,'barber_phone',b.phone,
+    'appointment_date',a.appointment_date,
+    'appointment_time',to_char(a.appointment_time,'HH24:MI'),
+    'notes',a.notes,'confirmation_token',a.confirmation_token,'status',a.status
+  )
+  from appointments a join services s on s.id=a.service_id join barbers b on b.id=a.barber_id
+  where a.id=p_appointment_id;
+$$;
+
+create or replace function public.confirm_public_appointment(p_token uuid)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare v_result jsonb;
+begin
+  update appointments set status='confirmed',updated_at=now()
+  where confirmation_token=p_token and status='pending';
+  select jsonb_build_object(
+    'id',a.id,'client_name',a.client_name,'service',s.name,'barber',b.name,
+    'appointment_date',a.appointment_date,
+    'appointment_time',to_char(a.appointment_time,'HH24:MI'),'status',a.status
+  ) into v_result
+  from appointments a join services s on s.id=a.service_id join barbers b on b.id=a.barber_id
+  where a.confirmation_token=p_token;
+  if v_result is null then raise exception 'TOKEN_INVALIDO' using errcode='P0001'; end if;
+  return v_result;
+end; $$;
+
+revoke all on function public.get_appointment_notification(uuid) from public;
+revoke all on function public.confirm_public_appointment(uuid) from public;
+grant execute on function public.get_appointment_notification(uuid) to anon,authenticated;
+grant execute on function public.confirm_public_appointment(uuid) to anon,authenticated;
 
 -- =========================================================
 -- ADMINISTRADORES DO MESMO NEGÓCIO

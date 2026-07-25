@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmar agendamento | Barbearia VIP</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <main class="confirmation-page">
+    <section class="confirmation-card" aria-live="polite">
+      <a class="logo confirmation-logo" href="index.html">
+        <i class="fa-solid fa-crown"></i><span>Barbearia <strong>VIP</strong></span>
+      </a>
+      <div class="success-icon"><i class="fa-solid fa-clock"></i></div>
+      <span class="section-label">Confirmação do barbeiro</span>
+      <h1 id="confirmationTitle">Confirmando agendamento...</h1>
+      <p id="confirmationMessage">Aguarde alguns segundos.</p>
+      <div class="success-details" id="confirmationDetails" hidden></div>
+      <a href="index.html" class="button button-outline">Voltar ao site</a>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/confirmar.js"></script>
+</body>
+</html>
