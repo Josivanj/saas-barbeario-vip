@@ -1,0 +1,20 @@
+ATUALIZAÇÃO BARBEARIA VIP
+
+Correções incluídas:
+1. Duração agora aparece de forma legível:
+   60 minutos = 1 hora
+   90 minutos = 1 hora e 30 minutos
+   120 minutos = 2 horas
+
+2. Notificação de agendamento:
+   - No painel, clique em "Ativar notificações".
+   - Quando o painel estiver aberto no mesmo navegador, um novo agendamento gera aviso na tela e notificação do navegador.
+   - Agendamentos feitos enquanto o painel estava fechado aparecem como aviso quando ele for aberto.
+
+3. Profissionais:
+   - O painel mostra a ação "Alterar foto de perfil".
+   - A foto escolhida também aparece na página de agendamento.
+
+IMPORTANTE:
+A notificação atual funciona no mesmo navegador/dispositivo porque os agendamentos ainda estão no localStorage.
+Para receber no celular mesmo com o painel fechado, a próxima etapa é salvar agendamentos no Supabase e integrar WhatsApp API ou notificações push.

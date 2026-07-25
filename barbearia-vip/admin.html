@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Administrativo | Barbearia VIP</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-page">
+
+  <div class="admin-overlay" id="adminOverlay"></div>
+
+  <aside class="admin-sidebar" id="adminSidebar">
+    <a href="index.html" class="admin-brand">
+      <i class="fa-solid fa-crown"></i>
+      <div>
+        <span>Barbearia</span>
+        <strong>VIP</strong>
+      </div>
+    </a>
+
+    <nav class="admin-menu">
+      <button class="admin-menu-item active" data-section="dashboard">
+        <i class="fa-solid fa-chart-line"></i><span>Dashboard</span>
+      </button>
+      <button class="admin-menu-item" data-section="services">
+        <i class="fa-solid fa-scissors"></i><span>Serviços</span>
+      </button>
+      <button class="admin-menu-item" data-section="professionals">
+        <i class="fa-solid fa-user-tie"></i><span>Barbeiros</span>
+      </button>
+      <button class="admin-menu-item" data-section="gallery">
+        <i class="fa-solid fa-images"></i><span>Galeria</span>
+      </button>
+      <button class="admin-menu-item" data-section="bookings">
+        <i class="fa-regular fa-calendar-check"></i><span>Agendamentos</span>
+      </button>
+      <button class="admin-menu-item" data-section="plans">
+        <i class="fa-solid fa-gem"></i><span>Planos</span>
+      </button>
+      <button class="admin-menu-item" data-section="whatsapp">
+        <i class="fa-brands fa-whatsapp"></i><span>WhatsApp</span>
+      </button>
+      <button class="admin-menu-item" data-section="admins">
+        <i class="fa-solid fa-user-shield"></i><span>Administradores</span>
+      </button>
+    </nav>
+
+    <button type="button" class="admin-public-link admin-logout" onclick="logoutBarbeariaVip()"><i class="fa-solid fa-right-from-bracket"></i><span>Sair</span></button>
+
+    <a href="index.html" class="admin-public-link">
+      <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      <span>Ver site público</span>
+    </a>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-header">
+      <button class="admin-menu-toggle" id="adminMenuToggle" aria-label="Abrir menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <div class="admin-header-title">
+        <span>Painel administrativo</span>
+        <h1>Barbearia VIP</h1>
+      </div>
+
+      <div class="admin-user">
+        <div>
+          <strong>Administrador</strong>
+          <span>Barbearia VIP</span>
+        </div>
+        <div class="admin-user-avatar"><i class="fa-solid fa-user"></i></div>
+      </div>
+    </header>
+
+    <div class="admin-content">
+
+      <section class="admin-section active" id="dashboardSection">
+        <div class="admin-section-heading">
+          <div><span>Visão geral</span><h2>Dashboard</h2></div>
+        </div>
+
+        <div class="admin-stats">
+          <article class="admin-stat">
+            <div class="admin-stat-icon"><i class="fa-solid fa-scissors"></i></div>
+            <div><span>Serviços</span><strong id="servicesTotal">0</strong></div>
+          </article>
+          <article class="admin-stat">
+            <div class="admin-stat-icon"><i class="fa-solid fa-user-tie"></i></div>
+            <div><span>Barbeiros</span><strong id="professionalsTotal">0</strong></div>
+          </article>
+          <article class="admin-stat">
+            <div class="admin-stat-icon"><i class="fa-solid fa-images"></i></div>
+            <div><span>Fotos na galeria</span><strong id="galleryTotal">0</strong></div>
+          </article>
+          <article class="admin-stat">
+            <div class="admin-stat-icon"><i class="fa-regular fa-calendar-check"></i></div>
+            <div><span>Agendamentos</span><strong id="bookingsTotal">0</strong></div>
+          </article>
+        </div>
+
+        <article class="admin-hero">
+          <div>
+            <span>Barbearia VIP</span>
+            <h2>Gerencie seu negócio em um só lugar</h2>
+            <p>Cadastre serviços, barbeiros e cortes da galeria. Acompanhe também os agendamentos feitos pelos clientes.</p>
+          </div>
+          <i class="fa-solid fa-crown"></i>
+        </article>
+      </section>
+
+      <section class="admin-section" id="servicesSection">
+        <div class="admin-section-heading">
+          <div><span>Gerenciamento</span><h2>Serviços</h2></div>
+          <button class="admin-primary-button" id="newServiceButton">
+            <i class="fa-solid fa-plus"></i> Novo serviço
+          </button>
+        </div>
+        <div class="admin-cards-grid" id="servicesAdminList"></div>
+      </section>
+
+      <section class="admin-section" id="professionalsSection">
+        <div class="admin-section-heading">
+          <div><span>Equipe</span><h2>Barbeiros</h2></div>
+          <button class="admin-primary-button" id="newProfessionalButton">
+            <i class="fa-solid fa-plus"></i> Novo barbeiro
+          </button>
+        </div>
+        <div class="admin-cards-grid" id="professionalsAdminList"></div>
+      </section>
+
+      <section class="admin-section" id="gallerySection">
+        <div class="admin-section-heading">
+          <div><span>Portfólio</span><h2>Galeria de cortes</h2></div>
+          <button class="admin-primary-button" id="newGalleryButton">
+            <i class="fa-solid fa-plus"></i> Adicionar foto
+          </button>
+        </div>
+        <div class="admin-gallery-grid" id="galleryAdminList"></div>
+      </section>
+
+      <section class="admin-section" id="bookingsSection">
+        <div class="admin-section-heading">
+          <div><span>Agenda</span><h2>Agendamentos</h2></div>
+        </div>
+        <div class="admin-bookings-list" id="bookingsAdminList"></div>
+      </section>
+
+      <section class="admin-section" id="plansSection">
+        <div class="admin-section-heading">
+          <div><span>Clube VIP</span><h2>Planos para clientes</h2></div>
+          <button class="admin-primary-button" id="newPlanButton"><i class="fa-solid fa-plus"></i> Novo plano</button>
+        </div>
+        <label class="admin-toggle-row"><input type="checkbox" id="plansEnabled"> Mostrar planos no site público</label>
+        <div class="admin-cards-grid" id="plansAdminList"></div>
+      </section>
+
+      <section class="admin-section" id="whatsappSection">
+        <div class="admin-section-heading"><div><span>Notificações</span><h2>WhatsApp</h2></div></div>
+        <article class="admin-hero admin-whatsapp-config">
+          <div>
+            <span>Evolution API</span>
+            <h2>Receba novos agendamentos no WhatsApp</h2>
+            <p>Na Vercel, configure EVOLUTION_API_URL, EVOLUTION_API_KEY, EVOLUTION_INSTANCE e BARBER_WHATSAPP_NUMBER. As chaves ficam protegidas no servidor.</p>
+          </div>
+          <i class="fa-brands fa-whatsapp"></i>
+        </article>
+      </section>
+
+      <section class="admin-section" id="adminsSection">
+        <div class="admin-section-heading">
+          <div><span>Equipe de gestão</span><h2>Administradores</h2></div>
+        </div>
+        <div class="admin-card admin-admin-access">
+          <div class="admin-card-content">
+            <h3>Convidar administrador</h3>
+            <p>O convidado receberá um e-mail para criar o acesso e compartilhará os dados desta barbearia.</p>
+            <form id="inviteAdminForm" class="admin-inline-form">
+              <div class="admin-field"><label for="inviteAdminName">Nome</label><input id="inviteAdminName" required placeholder="Nome da pessoa"></div>
+              <div class="admin-field"><label for="inviteAdminEmail">E-mail</label><input id="inviteAdminEmail" type="email" required placeholder="pessoa@email.com"></div>
+              <button class="admin-primary-button" type="submit"><i class="fa-solid fa-paper-plane"></i> Enviar convite</button>
+            </form>
+            <div id="inviteAdminMessage" class="admin-form-message" role="status"></div>
+          </div>
+        </div>
+        <div class="admin-cards-grid" id="adminsAdminList"></div>
+      </section>
+    </div>
+  </main>
+
+  <div class="admin-modal" id="serviceModal">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <div><span>Serviço</span><h2 id="serviceModalTitle">Novo serviço</h2></div>
+        <button class="admin-icon-button" data-close="serviceModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="serviceForm">
+        <input type="hidden" id="serviceId">
+        <div class="admin-field">
+          <label for="serviceName">Nome</label>
+          <input id="serviceName" required placeholder="Ex.: Corte masculino">
+        </div>
+        <div class="admin-form-row">
+          <div class="admin-field">
+            <label for="servicePrice">Preço</label>
+            <input id="servicePrice" type="number" min="0" step="0.01" required placeholder="60">
+          </div>
+          <div class="admin-field">
+            <label for="serviceDuration">Duração</label>
+            <input id="serviceDuration" required placeholder="45 minutos">
+          </div>
+        </div>
+        <div class="admin-field">
+          <label for="serviceDescription">Descrição</label>
+          <textarea id="serviceDescription" rows="3" required placeholder="Descrição do serviço"></textarea>
+        </div>
+        <div class="admin-field">
+          <label for="serviceImage">Foto</label>
+          <input id="serviceImage" type="file" accept="image/*">
+          <small>Você pode escolher uma foto de até 15 MB. Ela será otimizada automaticamente.</small>
+        </div>
+        <div class="admin-preview" id="serviceImagePreview"></div>
+        <div class="admin-modal-actions">
+          <button type="button" class="admin-secondary-button" data-close="serviceModal">Cancelar</button>
+          <button type="submit" class="admin-primary-button"><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="admin-modal" id="professionalModal">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <div><span>Equipe</span><h2 id="professionalModalTitle">Novo barbeiro</h2></div>
+        <button class="admin-icon-button" data-close="professionalModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="professionalForm">
+        <input type="hidden" id="professionalId">
+        <div class="admin-field">
+          <label for="professionalName">Nome</label>
+          <input id="professionalName" required placeholder="Nome do barbeiro">
+        </div>
+        <div class="admin-field">
+          <label for="professionalSpecialty">Especialidade</label>
+          <input id="professionalSpecialty" required placeholder="Ex.: Especialista em degradê">
+        </div>
+        <div class="admin-field">
+          <label for="professionalWhatsapp">WhatsApp</label>
+          <input id="professionalWhatsapp" placeholder="Ex.: 5599999999999">
+        </div>
+        <div class="admin-field">
+          <label for="professionalInstagram">Instagram</label>
+          <input id="professionalInstagram" placeholder="Ex.: @barbeiro">
+        </div>
+        <div class="admin-form-grid schedule-fields">
+          <div class="admin-field"><label for="professionalWorkStart">Hora de entrada</label><input id="professionalWorkStart" type="time" required value="08:00"></div>
+          <div class="admin-field"><label for="professionalLunchStart">Início do almoço</label><input id="professionalLunchStart" type="time" required value="12:00"></div>
+          <div class="admin-field"><label for="professionalLunchEnd">Fim do almoço</label><input id="professionalLunchEnd" type="time" required value="13:00"></div>
+          <div class="admin-field"><label for="professionalWorkEnd">Hora de saída</label><input id="professionalWorkEnd" type="time" required value="18:00"></div>
+        </div>
+        <div class="admin-field">
+          <label for="professionalImage">Foto</label>
+          <input id="professionalImage" type="file" accept="image/*">
+        </div>
+        <div class="admin-form-grid schedule-fields">
+          <div class="admin-field"><label for="professionalWorkStart">Hora de entrada</label><input id="professionalWorkStart" type="time" required value="08:00"></div>
+          <div class="admin-field"><label for="professionalLunchStart">Início do almoço</label><input id="professionalLunchStart" type="time" required value="12:00"></div>
+          <div class="admin-field"><label for="professionalLunchEnd">Fim do almoço</label><input id="professionalLunchEnd" type="time" required value="13:00"></div>
+          <div class="admin-field"><label for="professionalWorkEnd">Hora de saída</label><input id="professionalWorkEnd" type="time" required value="18:00"></div>
+        </div>
+        <div class="admin-preview" id="professionalImagePreview"></div>
+        <div class="admin-modal-actions">
+          <button type="button" class="admin-secondary-button" data-close="professionalModal">Cancelar</button>
+          <button type="submit" class="admin-primary-button"><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="admin-modal" id="galleryModal">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <div><span>Galeria</span><h2>Adicionar corte</h2></div>
+        <button class="admin-icon-button" data-close="galleryModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="galleryForm">
+        <div class="admin-field">
+          <label for="galleryTitle">Nome do corte</label>
+          <input id="galleryTitle" required placeholder="Ex.: Degradê navalhado">
+        </div>
+        <div class="admin-field">
+          <label for="galleryImage">Foto</label>
+          <input id="galleryImage" type="file" accept="image/jpeg,image/png,image/webp" required>
+          <small>Você pode escolher uma foto de até 15 MB. O sistema recorta e otimiza automaticamente para PC e celular.</small>
+        </div>
+        <div class="admin-preview" id="galleryImagePreview"></div>
+        <div class="admin-modal-actions">
+          <button type="button" class="admin-secondary-button" data-close="galleryModal">Cancelar</button>
+          <button type="submit" class="admin-primary-button"><i class="fa-solid fa-image"></i> Adicionar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="admin-modal" id="planModal">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header"><div><span>Clube VIP</span><h2 id="planModalTitle">Novo plano</h2></div><button class="admin-icon-button" data-close="planModal"><i class="fa-solid fa-xmark"></i></button></div>
+      <form id="planForm">
+        <input type="hidden" id="planId">
+        <div class="admin-field"><label for="planName">Nome</label><input id="planName" required placeholder="Ex.: Premium"></div>
+        <div class="admin-field"><label for="planPrice">Preço mensal</label><input id="planPrice" type="number" min="0" step="0.01" required></div>
+        <div class="admin-field"><label for="planBenefits">Benefícios (um por linha)</label><textarea id="planBenefits" rows="5" required></textarea></div>
+        <label class="admin-toggle-row"><input type="checkbox" id="planPopular"> Marcar como mais popular</label>
+        <div class="admin-modal-actions"><button type="button" class="admin-secondary-button" data-close="planModal">Cancelar</button><button class="admin-primary-button" type="submit">Salvar</button></div>
+      </form>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/auth-guard.js"></script>
+<script src="js/services.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

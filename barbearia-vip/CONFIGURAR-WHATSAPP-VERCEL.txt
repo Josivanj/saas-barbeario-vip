@@ -1,0 +1,17 @@
+NOTIFICAÇÃO AUTOMÁTICA NO WHATSAPP — EVOLUTION API
+
+A notificação só funciona depois que o site estiver publicado na Vercel e estas variáveis forem cadastradas:
+
+EVOLUTION_API_URL=https://seu-servidor-evolution.com
+EVOLUTION_API_KEY=sua-chave-da-evolution
+EVOLUTION_INSTANCE=nome-da-instancia
+BARBER_WHATSAPP_NUMBER=5599999999999
+
+Na Vercel:
+1. Abra o projeto.
+2. Settings > Environment Variables.
+3. Cadastre as quatro variáveis acima.
+4. Faça um novo deploy.
+
+Não coloque a API KEY dentro de arquivos JavaScript públicos.
+Em localhost, o agendamento é salvo normalmente, mas o WhatsApp não será enviado porque /api/send-whatsapp roda na Vercel.

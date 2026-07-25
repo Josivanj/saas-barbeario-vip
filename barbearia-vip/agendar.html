@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Agende seu horário na Barbearia VIP."
+    >
+
+    <title>Agendamento | Barbearia VIP</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+   <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/agendar.css">
+</head>
+
+<body class="booking-page">
+
+    <header class="booking-header">
+        <div class="container booking-header-content">
+
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-crown"></i>
+
+                <div>
+                    <span>Barbearia</span>
+                    <strong>VIP</strong>
+                </div>
+            </a>
+
+            <a href="index.html" class="back-link">
+                <i class="fa-solid fa-arrow-left"></i>
+                Voltar ao início
+            </a>
+
+        </div>
+    </header>
+
+    <main class="booking-main">
+
+        <div class="container">
+
+            <div class="booking-heading">
+                <span class="section-label">Agendamento online</span>
+
+                <h1>Agende seu horário</h1>
+
+                <p>
+                    Escolha o serviço, o profissional e o melhor horário para você.
+                </p>
+            </div>
+
+            <div class="booking-progress">
+
+                <div class="progress-item active" data-progress="1">
+                    <span>1</span>
+                    <p>Serviço</p>
+                </div>
+
+                <div class="progress-line"></div>
+
+                <div class="progress-item" data-progress="2">
+                    <span>2</span>
+                    <p>Profissional</p>
+                </div>
+
+                <div class="progress-line"></div>
+
+                <div class="progress-item" data-progress="3">
+                    <span>3</span>
+                    <p>Data e hora</p>
+                </div>
+
+                <div class="progress-line"></div>
+
+                <div class="progress-item" data-progress="4">
+                    <span>4</span>
+                    <p>Confirmar</p>
+                </div>
+
+            </div>
+
+            <div class="booking-layout">
+
+                <section class="booking-card">
+
+                    <form id="bookingForm">
+
+                        <div class="booking-step active" data-step="1">
+
+                            <div class="step-heading">
+                                <span>Etapa 1 de 4</span>
+                                <h2>Escolha um serviço</h2>
+                            </div>
+
+                            <div class="booking-options services-options">
+
+                                <label class="booking-option">
+                                    <input
+                                        type="radio"
+                                        name="servico"
+                                        value="Corte masculino"
+                                        data-price="60"
+                                        data-duration="45 minutos"
+                                    >
+
+                                    <div class="option-icon">
+                                        <i class="fa-solid fa-scissors"></i>
+                                    </div>
+
+                                    <div class="option-info">
+                                        <strong>Corte masculino</strong>
+                                        <span>45 minutos</span>
+                                    </div>
+
+                                    <div class="option-price">
+                                        R$ 60,00
+                                    </div>
+                                </label>
+
+                                <label class="booking-option">
+                                    <input
+                                        type="radio"
+                                        name="servico"
+                                        value="Barba"
+                                        data-price="40"
+                                        data-duration="30 minutos"
+                                    >
+
+                                    <div class="option-icon">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+
+                                    <div class="option-info">
+                                        <strong>Barba</strong>
+                                        <span>30 minutos</span>
+                                    </div>
+
+                                    <div class="option-price">
+                                        R$ 40,00
+                                    </div>
+                                </label>
+
+                                <label class="booking-option">
+                                    <input
+                                        type="radio"
+                                        name="servico"
+                                        value="Corte e barba"
+                                        data-price="90"
+                                        data-duration="1 hora"
+                                    >
+
+                                    <div class="option-icon">
+                                        <i class="fa-solid fa-crown"></i>
+                                    </div>
+
+                                    <div class="option-info">
+                                        <strong>Corte + barba</strong>
+                                        <span>1 hora</span>
+                                    </div>
+
+                                    <div class="option-price">
+                                        R$ 90,00
+                                    </div>
+                                </label>
+
+                                <label class="booking-option">
+                                    <input
+                                        type="radio"
+                                        name="servico"
+                                        value="Pigmentação"
+                                        data-price="80"
+                                        data-duration="50 minutos"
+                                    >
+
+                                    <div class="option-icon">
+                                        <i class="fa-solid fa-paintbrush"></i>
+                                    </div>
+
+                                    <div class="option-info">
+                                        <strong>Pigmentação</strong>
+                                        <span>50 minutos</span>
+                                    </div>
+
+                                    <div class="option-price">
+                                        R$ 80,00
+                                    </div>
+                                </label>
+
+                                <label class="booking-option">
+                                    <input
+                                        type="radio"
+                                        name="servico"
+                                        value="Sobrancelha"
+                                        data-price="25"
+                                        data-duration="20 minutos"
+                                    >
+
+                                    <div class="option-icon">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </div>
+
+                                    <div class="option-info">
+                                        <strong>Sobrancelha</strong>
+                                        <span>20 minutos</span>
+                                    </div>
+
+                                    <div class="option-price">
+                                        R$ 25,00
+                                    </div>
+                                </label>
+
+                            </div>
+
+                            <div class="step-actions">
+                                <span></span>
+
+                                <button
+                                    type="button"
+                                    class="button next-button"
+                                    data-next="2"
+                                >
+                                    Próximo
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+
+                        </div>
+
+                        <div class="booking-step" data-step="2">
+
+                            <div class="step-heading">
+                                <span>Etapa 2 de 4</span>
+                                <h2>Escolha um profissional</h2>
+                            </div>
+
+                            <div class="booking-options professional-options">
+
+                                <label class="booking-option professional-option">
+                                    <input
+                                        type="radio"
+                                        name="profissional"
+                                        value="Carlos Alberto"
+                                    >
+
+                                    <div class="professional-option-avatar">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+
+                                    <div class="option-info">
+                                        <strong>Carlos Alberto</strong>
+                                        <span>Especialista em degradê</span>
+
+                                        <div class="small-stars">
+                                            <i class="fa-solid fa-star"></i>
+                                            <i class="fa-solid fa-star"></i>
+                                            <i class="fa-solid fa-star"></i>
+                                            <i class="fa-solid fa-star"></i>
+                                            <i class="fa-solid fa-star"></i>
+                                        </div>
+                                    </div>
+                                </label>
+
+                                <label class="booking-option professional-option">
+                                    <input
+                                        type="radio"
+                                        name="profissional"
+                                        value="Rafael Souza"
+                                    >
+
+                                    <div class="professional-option-avatar">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+
+                                    <div class="option-info">
+                                        <strong>Rafael Souza</strong>
+                                        <span>Especialista em barba</span>
+
+                                        <div class="small-stars">
+                                            <i class="fa-solid fa-star"></i>
+                                            <i class="fa-solid fa-star"></i>
+                                            <i class="fa-solid fa-star"></i>
+                                            <i class="fa-solid fa-star"></i>
+                                            <i class="fa-solid fa-star"></i>
+                                        </div>
+                                    </div>
+                                </label>
+
+                                <label class="booking-option professional-option">
+                                    <input
+                                        type="radio"
+                                        name="profissional"
+                                        value="Lucas Lima"
+                                    >
+
+                                    <div class="professional-option-avatar">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+
+                                    <div class="option-info">
+                                        <strong>Lucas Lima</strong>
+                                        <span>Especialista em cortes clássicos</span>
+
+                                        <div class="small-stars">
+                                            <i class="fa-solid fa-star"></i>
+                                            <i class="fa-solid fa-star"></i>
+                                            <i class="fa-solid fa-star"></i>
+                                            <i class="fa-solid fa-star"></i>
+                                            <i class="fa-solid fa-star"></i>
+                                        </div>
+                                    </div>
+                                </label>
+
+                            </div>
+
+                            <div class="step-actions">
+                                <button
+                                    type="button"
+                                    class="button button-outline previous-button"
+                                    data-previous="1"
+                                >
+                                    <i class="fa-solid fa-arrow-left"></i>
+                                    Voltar
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="button next-button"
+                                    data-next="3"
+                                >
+                                    Próximo
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+
+                        </div>
+
+                        <div class="booking-step" data-step="3">
+
+                            <div class="step-heading">
+                                <span>Etapa 3 de 4</span>
+                                <h2>Escolha a data e o horário</h2>
+                            </div>
+
+                            <div class="date-field">
+                                <label for="bookingDate">
+                                    Data do agendamento
+                                </label>
+
+                                <input
+                                    type="date"
+                                    id="bookingDate"
+                                    name="data"
+                                    required
+                                >
+                            </div>
+
+                            <div class="time-section">
+                                <h3>Horários disponíveis</h3>
+
+                                <div class="time-grid" id="timeGrid" aria-live="polite">
+
+                                    <label class="time-option">
+                                        <input
+                                            type="radio"
+                                            name="horario"
+                                            value="08:00"
+                                        >
+                                        <span>08:00</span>
+                                    </label>
+
+                                    <label class="time-option">
+                                        <input
+                                            type="radio"
+                                            name="horario"
+                                            value="09:00"
+                                        >
+                                        <span>09:00</span>
+                                    </label>
+
+                                    <label class="time-option">
+                                        <input
+                                            type="radio"
+                                            name="horario"
+                                            value="10:00"
+                                        >
+                                        <span>10:00</span>
+                                    </label>
+
+                                    <label class="time-option">
+                                        <input
+                                            type="radio"
+                                            name="horario"
+                                            value="11:00"
+                                        >
+                                        <span>11:00</span>
+                                    </label>
+
+                                    <label class="time-option">
+                                        <input
+                                            type="radio"
+                                            name="horario"
+                                            value="13:00"
+                                        >
+                                        <span>13:00</span>
+                                    </label>
+
+                                    <label class="time-option">
+                                        <input
+                                            type="radio"
+                                            name="horario"
+                                            value="14:00"
+                                        >
+                                        <span>14:00</span>
+                                    </label>
+
+                                    <label class="time-option">
+                                        <input
+                                            type="radio"
+                                            name="horario"
+                                            value="15:00"
+                                        >
+                                        <span>15:00</span>
+                                    </label>
+
+                                    <label class="time-option">
+                                        <input
+                                            type="radio"
+                                            name="horario"
+                                            value="16:00"
+                                        >
+                                        <span>16:00</span>
+                                    </label>
+
+                                    <label class="time-option">
+                                        <input
+                                            type="radio"
+                                            name="horario"
+                                            value="17:00"
+                                        >
+                                        <span>17:00</span>
+                                    </label>
+
+                                    <label class="time-option">
+                                        <input
+                                            type="radio"
+                                            name="horario"
+                                            value="18:00"
+                                        >
+                                        <span>18:00</span>
+                                    </label>
+
+                                    <label class="time-option">
+                                        <input
+                                            type="radio"
+                                            name="horario"
+                                            value="19:00"
+                                        >
+                                        <span>19:00</span>
+                                    </label>
+
+                                </div>
+                            </div>
+
+                            <div class="step-actions">
+                                <button
+                                    type="button"
+                                    class="button button-outline previous-button"
+                                    data-previous="2"
+                                >
+                                    <i class="fa-solid fa-arrow-left"></i>
+                                    Voltar
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="button next-button"
+                                    data-next="4"
+                                >
+                                    Próximo
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+
+                        </div>
+
+                        <div class="booking-step" data-step="4">
+
+                            <div class="step-heading">
+                                <span>Etapa 4 de 4</span>
+                                <h2>Confirme seus dados</h2>
+                            </div>
+
+                            <div class="client-form-grid">
+
+                                <div class="form-group">
+                                    <label for="clientName">
+                                        Nome completo
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="clientName"
+                                        name="nome"
+                                        placeholder="Digite seu nome"
+                                        required
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="clientPhone">
+                                        WhatsApp
+                                    </label>
+
+                                    <input
+                                        type="tel"
+                                        id="clientPhone"
+                                        name="telefone"
+                                        placeholder="(93) 99999-9999"
+                                        maxlength="15"
+                                        required
+                                    >
+                                </div>
+
+                                <div class="form-group full-field">
+                                    <label for="clientNotes">
+                                        Observações
+                                    </label>
+
+                                    <textarea
+                                        id="clientNotes"
+                                        name="observacoes"
+                                        rows="4"
+                                        placeholder="Digite alguma observação, se necessário"
+                                    ></textarea>
+                                </div>
+
+                            </div>
+
+                            <div class="final-summary" id="finalSummary"></div>
+
+                            <div class="step-actions">
+                                <button
+                                    type="button"
+                                    class="button button-outline previous-button"
+                                    data-previous="3"
+                                >
+                                    <i class="fa-solid fa-arrow-left"></i>
+                                    Voltar
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    class="button"
+                                >
+                                    <i class="fa-solid fa-check"></i>
+                                    Confirmar agendamento
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                    <div class="booking-success" id="bookingSuccess">
+
+                        <div class="success-icon">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+
+                        <span>Agendamento confirmado</span>
+
+                        <h2>Seu horário foi reservado!</h2>
+
+                        <p>
+                            Confira abaixo os detalhes do seu agendamento.
+                        </p>
+
+                        <div
+                            class="success-details"
+                            id="successDetails"
+                        ></div>
+
+                        <div class="success-actions">
+                            <button
+                                type="button"
+                                class="button"
+                                id="whatsappConfirmation"
+                            >
+                                <i class="fa-brands fa-whatsapp"></i>
+                                Enviar para o WhatsApp
+                            </button>
+
+                            <a
+                                href="index.html"
+                                class="button button-outline"
+                            >
+                                Voltar ao início
+                            </a>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <aside class="booking-summary">
+
+                    <div class="summary-header">
+                        <i class="fa-solid fa-receipt"></i>
+
+                        <div>
+                            <span>Resumo</span>
+                            <h2>Seu agendamento</h2>
+                        </div>
+                    </div>
+
+                    <div class="summary-empty" id="summaryEmpty">
+                        <i class="fa-regular fa-calendar"></i>
+
+                        <p>
+                            Escolha as opções para visualizar o resumo.
+                        </p>
+                    </div>
+
+                    <div class="summary-content" id="summaryContent">
+
+                        <div class="summary-row">
+                            <span>Serviço</span>
+                            <strong id="summaryService">Não selecionado</strong>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Profissional</span>
+                            <strong id="summaryProfessional">Não selecionado</strong>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Data</span>
+                            <strong id="summaryDate">Não selecionada</strong>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Horário</span>
+                            <strong id="summaryTime">Não selecionado</strong>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Duração</span>
+                            <strong id="summaryDuration">—</strong>
+                        </div>
+
+                        <div class="summary-total">
+                            <span>Total</span>
+                            <strong id="summaryPrice">R$ 0,00</strong>
+                        </div>
+
+                    </div>
+
+                    <div class="summary-security">
+                        <i class="fa-solid fa-shield-halved"></i>
+
+                        <p>
+                            Seus dados estão protegidos e serão usados somente
+                            para confirmar o agendamento.
+                        </p>
+                    </div>
+
+                </aside>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/agendar.js"></script>
+</body>
+</html>

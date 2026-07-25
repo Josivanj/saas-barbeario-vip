@@ -1,0 +1,20 @@
+BARBEARIA VIP — PROJETO CORRIGIDO
+
+O que foi corrigido:
+- Estrutura das pastas normalizada.
+- js/services.js movido para o local correto.
+- Painel administrativo salva, edita, exclui e carrega serviços do Supabase.
+- index.html carrega serviços do Supabase.
+- agendar.html carrega serviços do Supabase.
+- Serviços não usam mais localStorage.
+
+ANTES DE TESTAR:
+1. No Supabase, abra SQL Editor > New query.
+2. Execute o arquivo supabase-servicos-publicos.sql.
+3. Substitua sua pasta atual pelo conteúdo deste projeto.
+4. Abra com Live Server.
+5. Pressione Ctrl + Shift + R.
+6. Entre no login e cadastre um serviço no painel.
+7. Confira o serviço em Table Editor > services, na página inicial e em agendar.html.
+
+Nesta etapa, barbeiros, galeria e agendamentos ainda usam localStorage.

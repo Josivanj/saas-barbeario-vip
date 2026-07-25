@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Barbearia VIP</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+  <main class="login-page">
+    <section class="login-visual">
+      <div class="login-visual-overlay"></div>
+
+      <div class="login-brand">
+        <i class="fa-solid fa-crown"></i>
+        <div>
+          <span>Barbearia</span>
+          <strong>VIP</strong>
+        </div>
+      </div>
+
+      <div class="login-message">
+        <span>Gestão profissional</span>
+        <h1>Seu negócio organizado em um só lugar.</h1>
+        <p>Gerencie serviços, barbeiros, galeria, clientes e agendamentos com praticidade.</p>
+      </div>
+    </section>
+
+    <section class="login-form-area">
+      <div class="login-card">
+        <div class="login-mobile-brand">
+          <i class="fa-solid fa-crown"></i>
+          <strong>Barbearia VIP</strong>
+        </div>
+
+        <span class="login-label">Área administrativa</span>
+        <h2>Entrar no painel</h2>
+        <p class="login-subtitle">Use seus dados para acessar a administração.</p>
+
+        <div class="login-alert" id="loginAlert"></div>
+
+        <form id="loginForm">
+          <div class="login-field">
+            <label for="email">E-mail</label>
+
+            <div class="login-input">
+              <i class="fa-regular fa-envelope"></i>
+              <input
+                type="email"
+                id="email"
+                autocomplete="email"
+                placeholder="admin@barbeariavip.com"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="login-field">
+            <label for="password">Senha</label>
+
+            <div class="login-input">
+              <i class="fa-solid fa-lock"></i>
+              <input
+                type="password"
+                id="password"
+                autocomplete="current-password"
+                placeholder="Digite sua senha"
+                required
+              >
+
+              <button type="button" id="togglePassword" aria-label="Mostrar senha">
+                <i class="fa-regular fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <label class="remember-option">
+            <input type="checkbox" id="remember">
+            <span>Lembrar meu acesso</span>
+          </label>
+
+          <button type="submit" class="login-button" id="loginButton">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            Entrar
+          </button>
+        </form>
+
+        <a href="index.html" class="back-to-site">
+          <i class="fa-solid fa-arrow-left"></i>
+          Voltar ao site
+        </a>
+
+
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

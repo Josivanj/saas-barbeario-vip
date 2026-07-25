@@ -1,0 +1,11 @@
+ATUALIZAÇÃO DA GALERIA
+
+- Fotos originais de até 15 MB.
+- A imagem é otimizada e comprimida automaticamente antes de salvar.
+- Galeria padronizada em proporção 4:3.
+- No PC aparecem várias fotos por linha.
+- No celular aparece uma foto por linha, sem esticar nem ocupar a tela inteira.
+- Fotos de serviço ficam em 16:9.
+- Fotos de profissionais ficam quadradas.
+
+Depois de substituir os arquivos, atualize com Ctrl + Shift + R.

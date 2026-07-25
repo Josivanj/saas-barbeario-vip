@@ -1,0 +1,15 @@
+CORREÇÕES INCLUÍDAS
+
+- Login do painel usando sessão real do Supabase.
+- Painel redireciona ao login quando não há sessão.
+- Botão Sair encerra a sessão.
+- Foto do serviço aparece embaixo das informações, sem esticar o cartão.
+- Duração aparece em horas e minutos corretamente.
+- Galeria em 4 colunas no PC, 2 no tablet e 1 no celular.
+- Fotos da galeria padronizadas em 4:3 com object-fit: cover.
+- Profissionais possuem WhatsApp, Instagram e foto de perfil.
+- Planos podem ser criados, editados, excluídos e ativados/desativados no painel.
+- Endpoint seguro para notificação via Evolution API incluído em api/send-whatsapp.js.
+
+ATENÇÃO
+Profissionais, galeria, planos e agendamentos ainda usam localStorage nesta versão. Portanto, os dados cadastrados em um computador não aparecem automaticamente em outro aparelho. A próxima etapa recomendada é migrar essas áreas para o Supabase, como já foi feito com os serviços.
