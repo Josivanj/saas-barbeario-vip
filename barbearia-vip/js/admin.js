@@ -30,6 +30,7 @@ let professionals = [];
 let gallery = readStorage(STORAGE.gallery, []);
 let bookings = [];
 let businessAdmins = [];
+let businessSettings = { whatsapp: "", instagram: "" };
 let plans = readStorage(STORAGE.plans, [
   { id: 1, name: "Básico", price: 79.9, benefits: ["2 cortes por mês", "Agendamento prioritário", "5% de desconto em produtos"], popular: false },
   { id: 2, name: "Profissional", price: 129.9, benefits: ["4 cortes por mês", "2 serviços de barba", "10% de desconto em produtos"], popular: true },
@@ -484,7 +485,6 @@ $("#professionalForm")?.addEventListener("submit", async event => {
     specialty: $("#professionalSpecialty").value.trim(),
     whatsapp: $("#professionalWhatsapp").value.trim(),
     instagram: $("#professionalInstagram").value.trim(),
-    instagram: $("#professionalInstagram").value.trim(),
     image: professionalImage,
     work_start: workStart, lunch_start: lunchStart, lunch_end: lunchEnd, work_end: workEnd
   };
@@ -580,6 +580,21 @@ $("#inviteAdminForm")?.addEventListener("submit", async event => {
     event.currentTarget.reset(); businessAdmins = await loadBusinessAdmins(); renderBusinessAdmins();
   } catch (error) {
     message.textContent = error.message; message.className = "admin-form-message visible error";
+  } finally { if (button) button.disabled = false; }
+});
+
+$("#contactSettingsForm")?.addEventListener("submit", async event => {
+  event.preventDefault();
+  const message = $("#contactSettingsMessage");
+  const button = event.submitter;
+  try {
+    if (button) button.disabled = true;
+    businessSettings = await saveBusinessSettings({ whatsapp: $("#businessWhatsapp").value, instagram: $("#businessInstagram").value });
+    message.textContent = "Contato atualizado no site.";
+    message.className = "admin-form-message visible success";
+  } catch (error) {
+    message.textContent = error.message || "Não foi possível salvar.";
+    message.className = "admin-form-message visible error";
   } finally { if (button) button.disabled = false; }
 });
 
@@ -699,10 +714,10 @@ async function initializeAdmin() {
   addNotificationButton();
 
   try {
-    [services, professionals, bookings, businessAdmins] = await Promise.all([loadServices(), loadBarbers(), loadAppointments(), loadBusinessAdmins()]);
+    [services, professionals, bookings, businessAdmins, businessSettings] = await Promise.all([loadServices(), loadBarbers(), loadAppointments(), loadBusinessAdmins(), loadBusinessSettings()]);
   } catch (error) {
     showError(error, "Não foi possível carregar os serviços do Supabase.");
-    services = []; professionals = []; bookings = []; businessAdmins = [];
+    services = []; professionals = []; bookings = []; businessAdmins = []; businessSettings = { whatsapp: "", instagram: "" };
   }
 
   renderServices();
@@ -710,6 +725,8 @@ async function initializeAdmin() {
   renderGallery();
   renderBookings();
   renderBusinessAdmins();
+  $("#businessWhatsapp").value = businessSettings.whatsapp || "";
+  $("#businessInstagram").value = businessSettings.instagram ? `@${businessSettings.instagram}` : "";
   updateDashboard();
   checkNewBookings();
 }

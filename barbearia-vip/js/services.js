@@ -108,6 +108,25 @@ async function loadBusinessAdmins() {
   return data || [];
 }
 
+async function loadBusinessSettings() {
+  const ownerId = await getBusinessOwnerId();
+  const { data, error } = await supabaseClient.from("business_settings")
+    .select("whatsapp,instagram").eq("owner_id", ownerId).maybeSingle();
+  if (error) throw error;
+  return data || { whatsapp: "", instagram: "" };
+}
+
+async function saveBusinessSettings(settings) {
+  const ownerId = await getBusinessOwnerId();
+  const { data, error } = await supabaseClient.from("business_settings").upsert({
+    owner_id: ownerId,
+    whatsapp: String(settings.whatsapp || "").replace(/\D/g, ""),
+    instagram: String(settings.instagram || "").trim().replace(/^@/, "")
+  }, { onConflict: "owner_id" }).select().single();
+  if (error) throw error;
+  return data;
+}
+
 async function deleteBarber(id) {
   const { error } = await supabaseClient.from("barbers").delete().eq("id", id);
   if (error) throw error;

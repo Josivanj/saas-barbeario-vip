@@ -559,3 +559,19 @@ drop policy if exists "transactions_update_own" on public.transactions;
 create policy "transactions_update_own" on public.transactions for update to authenticated using (owner_id=public.current_business_owner_id()) with check (owner_id=public.current_business_owner_id());
 drop policy if exists "transactions_delete_own" on public.transactions;
 create policy "transactions_delete_own" on public.transactions for delete to authenticated using (owner_id=public.current_business_owner_id());
+
+-- CONTATO PÚBLICO CONFIGURÁVEL PELO PAINEL
+create table if not exists public.business_settings (
+  owner_id uuid primary key references public.profiles(id) on delete cascade,
+  whatsapp text,
+  instagram text,
+  updated_at timestamptz not null default now()
+);
+alter table public.business_settings enable row level security;
+drop policy if exists "business_settings_public_read" on public.business_settings;
+create policy "business_settings_public_read" on public.business_settings for select to anon,authenticated using (true);
+drop policy if exists "business_settings_business_write" on public.business_settings;
+create policy "business_settings_business_write" on public.business_settings for all to authenticated
+using (owner_id=public.current_business_owner_id()) with check (owner_id=public.current_business_owner_id());
+grant select on public.business_settings to anon;
+grant select,insert,update,delete on public.business_settings to authenticated;
