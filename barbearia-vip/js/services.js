@@ -118,10 +118,12 @@ async function loadBusinessSettings() {
 
 async function saveBusinessSettings(settings) {
   const ownerId = await getBusinessOwnerId();
+  const instagram = String(settings.instagram || "").trim();
   const { data, error } = await supabaseClient.from("business_settings").upsert({
     owner_id: ownerId,
     whatsapp: String(settings.whatsapp || "").replace(/\D/g, ""),
-    instagram: String(settings.instagram || "").trim().replace(/^@/, "")
+    // Aceita tanto o link completo quanto o nome de usuário antigo.
+    instagram: /^https?:\/\//i.test(instagram) ? instagram : instagram.replace(/^@/, "")
   }, { onConflict: "owner_id" }).select().single();
   if (error) throw error;
   return data;

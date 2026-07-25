@@ -726,7 +726,7 @@ async function initializeAdmin() {
   renderBookings();
   renderBusinessAdmins();
   $("#businessWhatsapp").value = businessSettings.whatsapp || "";
-  $("#businessInstagram").value = businessSettings.instagram ? `@${businessSettings.instagram}` : "";
+  $("#businessInstagram").value = businessSettings.instagram || "";
   updateDashboard();
   checkNewBookings();
 }
