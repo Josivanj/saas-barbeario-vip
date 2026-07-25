@@ -18,9 +18,10 @@ async function renderPublicServices(){
 
 async function renderPublicProfessionals(){
  const container=document.querySelector('.professionals-grid'); if(!container)return;
+ container.innerHTML='<div class="admin-empty">Carregando profissionais...</div>';
  const {data,error}=await supabaseClient.from('barbers').select('name,specialty,phone,instagram,image_url').eq('active',true).order('name');
- if(error){console.error(error);return;}
- if(data?.length)container.innerHTML=data.map(item=>`<article class="professional-card"><div class="professional-photo">${item.image_url?`<img src="${item.image_url}" alt="${vipEscape(item.name)}">`:'<i class="fa-solid fa-user"></i>'}</div><h3>${vipEscape(item.name)}</h3><span>${vipEscape(item.specialty||'Profissional')}</span><div class="professional-social">${item.phone?`<a href="https://wa.me/${String(item.phone).replace(/\D/g,'')}" target="_blank" rel="noopener" aria-label="WhatsApp de ${vipEscape(item.name)}"><i class="fa-brands fa-whatsapp"></i></a>`:''}${item.instagram?`<a href="${vipInstagramUrl(item.instagram)}" target="_blank" rel="noopener" aria-label="Instagram de ${vipEscape(item.name)}"><i class="fa-brands fa-instagram"></i></a>`:''}</div><a href="agendar.html" class="button button-outline button-full">Agendar com ${vipEscape(item.name.split(' ')[0])}</a></article>`).join('');
+ if(error){console.error(error);container.innerHTML='<div class="admin-empty">Não foi possível carregar os profissionais.</div>';return;}
+ container.innerHTML=(data||[]).map(item=>`<article class="professional-card"><div class="professional-photo">${item.image_url?`<img src="${item.image_url}" alt="${vipEscape(item.name)}">`:'<i class="fa-solid fa-user"></i>'}</div><h3>${vipEscape(item.name)}</h3><span>${vipEscape(item.specialty||'Profissional')}</span><div class="professional-social">${item.phone?`<a href="https://wa.me/${String(item.phone).replace(/\D/g,'')}" target="_blank" rel="noopener" aria-label="WhatsApp de ${vipEscape(item.name)}"><i class="fa-brands fa-whatsapp"></i></a>`:''}${item.instagram?`<a href="${vipInstagramUrl(item.instagram)}" target="_blank" rel="noopener" aria-label="Instagram de ${vipEscape(item.name)}"><i class="fa-brands fa-instagram"></i></a>`:''}</div><a href="agendar.html" class="button button-outline button-full">Agendar com ${vipEscape(item.name.split(' ')[0])}</a></article>`).join('')||'<div class="admin-empty">Nenhum barbeiro cadastrado no momento.</div>';
 }
 
 async function renderPublicContact(){
@@ -43,10 +44,7 @@ function formatPublicPhone(phone){
 }
 
 function renderLocalContent(){
- const professionals=JSON.parse(localStorage.getItem('barbeariaVipProfessionals')||'[]');
  const gallery=JSON.parse(localStorage.getItem('barbeariaVipGallery')||'[]');
- const pc=document.querySelector('.professionals-grid');
- if(pc&&professionals.length)pc.innerHTML=professionals.map(item=>`<article class="professional-card"><div class="professional-photo">${item.image?`<img src="${item.image}" alt="${vipEscape(item.name)}">`:'<i class="fa-solid fa-user"></i>'}</div><h3>${vipEscape(item.name)}</h3><span>${vipEscape(item.specialty||'Profissional')}</span><div class="professional-social">${item.whatsapp?`<a href="https://wa.me/${String(item.whatsapp).replace(/\D/g,'')}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i></a>`:''}${item.instagram?`<a href="${vipInstagramUrl(item.instagram)}" target="_blank" rel="noopener"><i class="fa-brands fa-instagram"></i></a>`:''}</div><a href="agendar.html" class="button button-outline button-full">Agendar com ${vipEscape(item.name.split(' ')[0])}</a></article>`).join('');
  const gc=document.querySelector('.gallery-grid');
  if(gc&&gallery.length)gc.innerHTML=gallery.map(item=>`<article class="public-gallery-card"><img src="${item.image}" alt="${vipEscape(item.title)}"><div class="public-gallery-overlay"><span>${vipEscape(item.title)}</span></div></article>`).join('');
  const section=document.getElementById('planos'); const plans=JSON.parse(localStorage.getItem('barbeariaVipPlans')||'[]'); const enabled=localStorage.getItem('barbeariaVipPlansEnabled')!=='false';
