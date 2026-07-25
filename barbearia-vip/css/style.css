@@ -952,3 +952,84 @@ textarea {
 .professional-social a { width:38px; height:38px; border-radius:50%; display:grid; place-items:center; border:1px solid rgba(232,181,75,.45); color:#e8b54b; }
 @media (max-width:1000px){.gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}}
 @media (max-width:600px){.gallery-grid{grid-template-columns:1fr !important;}.public-gallery-card{aspect-ratio:4/3}.service-card-public .service-image-bottom{height:auto;aspect-ratio:16/9}}
+
+/* Galeria premium em carrossel horizontal */
+#galeria {
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 0, rgba(232, 181, 75, .10), transparent 38%), var(--black);
+}
+
+.gallery-carousel { position: relative; }
+
+.gallery-grid {
+    display: flex !important;
+    gap: 20px !important;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    padding: 8px 2px 22px;
+}
+
+.gallery-grid::-webkit-scrollbar { display: none; }
+
+.gallery-grid > * {
+    flex: 0 0 calc((100% - 40px) / 3);
+    scroll-snap-align: start;
+}
+
+.gallery-item,
+.public-gallery-card {
+    aspect-ratio: 4 / 5 !important;
+    min-height: 360px;
+    border-radius: 22px;
+    border: 1px solid rgba(232, 181, 75, .22);
+    box-shadow: 0 20px 55px rgba(0, 0, 0, .35);
+}
+
+.public-gallery-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06);
+    pointer-events: none;
+}
+
+.gallery-arrow {
+    position: absolute;
+    z-index: 3;
+    top: 50%;
+    width: 48px;
+    height: 48px;
+    border: 1px solid rgba(232, 181, 75, .45);
+    border-radius: 50%;
+    background: rgba(8, 8, 8, .88);
+    color: var(--gold-light);
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition: .25s ease;
+}
+
+.gallery-arrow:hover {
+    background: var(--gold);
+    color: #080808;
+    transform: translateY(-50%) scale(1.06);
+}
+
+.gallery-arrow-prev { left: -24px; }
+.gallery-arrow-next { right: -24px; }
+
+@media (max-width: 1000px) {
+    .gallery-grid > * { flex-basis: calc((100% - 18px) / 2); }
+    .gallery-arrow-prev { left: 8px; }
+    .gallery-arrow-next { right: 8px; }
+}
+
+@media (max-width: 600px) {
+    .gallery-grid { margin-right: -20px; padding-right: 20px; }
+    .gallery-grid > * { flex-basis: 84%; }
+    .gallery-item, .public-gallery-card { min-height: 390px; }
+    .gallery-arrow { display: none; }
+}

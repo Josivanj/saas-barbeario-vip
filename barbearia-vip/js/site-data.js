@@ -46,4 +46,22 @@ function renderLocalContent(){
  const section=document.getElementById('planos'); const plans=JSON.parse(localStorage.getItem('barbeariaVipPlans')||'[]'); const enabled=localStorage.getItem('barbeariaVipPlansEnabled')!=='false';
  if(section){section.hidden=!enabled;if(enabled&&plans.length){const grid=section.querySelector('.plans-grid');grid.innerHTML=plans.map(p=>`<article class="plan-card ${p.popular?'featured-plan':''}">${p.popular?'<div class="plan-badge">Mais popular</div>':''}<span>${vipEscape(p.name)}</span><h3>${vipMoney(p.price)}</h3><small>por mês</small><ul>${(p.benefits||[]).map(b=>`<li><i class="fa-solid fa-check"></i>${vipEscape(b)}</li>`).join('')}</ul><a href="https://wa.me/" class="button button-outline button-full">Escolher plano</a></article>`).join('');}}
 }
-renderPublicServices();renderPublicProfessionals();renderPublicContact();renderLocalContent();
+// Navegação da galeria: setas no computador e arraste nativo no celular.
+function initializeGalleryCarousel(){
+ const track=document.querySelector('.gallery-grid');
+ if(!track)return;
+ const move=direction=>{
+  const card=track.firstElementChild;
+  const gap=parseFloat(getComputedStyle(track).gap)||20;
+  const distance=(card?.getBoundingClientRect().width||track.clientWidth)+gap;
+  track.scrollBy({left:direction*distance,behavior:'smooth'});
+ };
+ document.querySelector('.gallery-arrow-prev')?.addEventListener('click',()=>move(-1));
+ document.querySelector('.gallery-arrow-next')?.addEventListener('click',()=>move(1));
+ track.addEventListener('keydown',event=>{
+  if(event.key==='ArrowLeft'){event.preventDefault();move(-1);}
+  if(event.key==='ArrowRight'){event.preventDefault();move(1);}
+ });
+}
+
+renderPublicServices();renderPublicProfessionals();renderPublicContact();renderLocalContent();initializeGalleryCarousel();
