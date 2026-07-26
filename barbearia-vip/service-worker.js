@@ -1,4 +1,4 @@
-const CACHE_NAME = "barbearia-vip-v3";
+const CACHE_NAME = "barbearia-vip-v4";
 const PUBLIC_SHELL = [
   "/", "/index.html", "/agendar.html", "/login.html", "/confirmar.html",
   "/manifest.webmanifest", "/admin-manifest.webmanifest", "/css/style.css", "/css/agendar.css", "/css/login.css",

@@ -1051,6 +1051,30 @@ textarea {
     .gallery-arrow { display: none; }
 }
 
+/* No celular, cada trabalho vira um quadrado e a foto aparece inteira. */
+@media (max-width: 900px) {
+    .gallery-grid {
+        padding-inline: 2px;
+    }
+
+    .gallery-grid > * {
+        flex: 0 0 min(82vw, 390px);
+    }
+
+    .gallery-item,
+    .public-gallery-card {
+        width: min(82vw, 390px);
+        min-height: 0;
+        max-height: none;
+        aspect-ratio: 1 / 1 !important;
+    }
+
+    .public-gallery-card img {
+        object-fit: contain !important;
+        background: #090909;
+    }
+}
+
 /* Página aberta pelo link seguro enviado ao WhatsApp do barbeiro */
 .confirmation-page {
     min-height: 100vh;
