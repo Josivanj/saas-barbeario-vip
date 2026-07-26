@@ -349,10 +349,19 @@ function bookingStatusLabel(status) {
 function renderBusinessAdmins() {
   const container = $("#adminsAdminList");
   if (!container) return;
+  const roleLabels = { owner: "Dono", admin: "Administrador", barber: "Barbeiro" };
+  const currentProfile = window.BARBEARIA_VIP_PROFILE || {};
+  const currentUserId = window.BARBEARIA_VIP_USER?.id;
   container.innerHTML = businessAdmins.length ? businessAdmins.map(item => `
     <article class="admin-card"><div class="admin-card-content">
       <h3>${escapeHtml(item.full_name || "Administrador")}</h3>
-      <p><i class="fa-solid fa-shield-halved"></i> ${item.role === "owner" ? "Dono" : "Administrador"}</p>
+      <p><i class="fa-solid fa-shield-halved"></i> ${roleLabels[item.role] || "Equipe"}</p>
+      ${item.email ? `<p><i class="fa-regular fa-envelope"></i> ${escapeHtml(item.email)}</p>` : ""}
+      ${item.phone ? `<p><i class="fa-solid fa-phone"></i> ${escapeHtml(item.phone)}</p>` : ""}
+      ${(currentProfile.role === "owner" || item.role === "barber" || item.id === currentUserId) ? `
+        <button class="admin-action" data-reset-user="${item.id}">
+          <i class="fa-solid fa-key"></i> Criar nova senha
+        </button>` : ""}
     </div></article>`).join("") : `<div class="admin-empty">Nenhum administrador encontrado.</div>`;
 }
 
@@ -523,12 +532,12 @@ $("#professionalForm")?.addEventListener("submit", async event => {
   try {
     const savedBarber = await saveBarber(data);
     const password = $("#professionalPassword").value;
-    if (!id && data.email && password) {
+    if (!id && (data.email || data.whatsapp) && password) {
       const { data: sessionData } = await supabaseClient.auth.getSession();
       const response = await fetch("/api/create-barber-access", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${sessionData.session?.access_token || ""}` },
-        body: JSON.stringify({ barberId: savedBarber.id, email: data.email, password, fullName: data.name })
+        body: JSON.stringify({ barberId: savedBarber.id, email: data.email, phone: data.whatsapp, password, fullName: data.name })
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Barbeiro salvo, mas o acesso não foi criado.");
@@ -588,7 +597,32 @@ document.addEventListener("click", async event => {
   const professionalEdit = event.target.closest("[data-edit-professional]");
   const professionalDelete = event.target.closest("[data-delete-professional]");
   const galleryDelete = event.target.closest("[data-delete-gallery]");
+  const resetUser = event.target.closest("[data-reset-user]");
   const bookingStatus = event.target.closest("[data-booking-status]");
+
+  if (resetUser) {
+    const password = prompt("Digite a nova senha (mínimo de 6 caracteres):");
+    if (password === null) return;
+    if (password.length < 6 || password.length > 128) {
+      alert("A senha deve possuir entre 6 e 128 caracteres.");
+      return;
+    }
+    if (!confirm("Confirma a alteração da senha deste usuário?")) return;
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const response = await fetch("/api/reset-team-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token || ""}` },
+        body: JSON.stringify({ userId: resetUser.dataset.resetUser, password })
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || "Não foi possível redefinir a senha.");
+      alert("Senha alterada com sucesso.");
+    } catch (error) {
+      showError(error, "Não foi possível redefinir a senha.");
+    }
+    return;
+  }
 
   if (bookingStatus) {
     const [id, status] = bookingStatus.dataset.bookingStatus.split(":");
@@ -664,6 +698,7 @@ $("#inviteAdminForm")?.addEventListener("submit", async event => {
       body: JSON.stringify({
         fullName: $("#inviteAdminName").value.trim(),
         email: $("#inviteAdminEmail").value.trim(),
+        phone: $("#inviteAdminPhone").value.trim(),
         password: $("#inviteAdminPassword").value
       })
     });
@@ -674,6 +709,33 @@ $("#inviteAdminForm")?.addEventListener("submit", async event => {
   } catch (error) {
     message.textContent = error.message; message.className = "admin-form-message visible error";
   } finally { if (button) button.disabled = false; }
+});
+
+$("#myLoginPhoneForm")?.addEventListener("submit", async event => {
+  event.preventDefault();
+  const message = $("#myLoginPhoneMessage");
+  const button = event.submitter;
+  try {
+    if (button) button.disabled = true;
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) throw new Error("Sua sessão expirou. Entre novamente.");
+    const response = await fetch("/api/update-login-phone", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({ phone: $("#myLoginPhone").value })
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || "Não foi possível salvar o telefone.");
+    message.textContent = "Telefone de acesso salvo. Agora você pode entrar com ele.";
+    message.className = "admin-form-message visible success";
+    businessAdmins = await loadBusinessAdmins();
+    renderBusinessAdmins();
+  } catch (error) {
+    message.textContent = error.message;
+    message.className = "admin-form-message visible error";
+  } finally {
+    if (button) button.disabled = false;
+  }
 });
 
 $("#contactSettingsForm")?.addEventListener("submit", async event => {
@@ -855,6 +917,8 @@ async function initializeAdmin() {
   renderGallery();
   renderBookings();
   renderBusinessAdmins();
+  const currentAccess = businessAdmins.find(item => item.id === window.BARBEARIA_VIP_USER?.id);
+  if ($("#myLoginPhone") && currentAccess?.phone) $("#myLoginPhone").value = currentAccess.phone;
   $("#businessWhatsapp").value = businessSettings.whatsapp || "";
   $("#businessInstagram").value = businessSettings.instagram || "";
   updateDashboard();

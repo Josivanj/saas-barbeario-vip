@@ -53,15 +53,15 @@
 
         <form id="loginForm">
           <div class="login-field">
-            <label for="email">E-mail</label>
+            <label for="identifier">Telefone ou e-mail</label>
 
             <div class="login-input">
-              <i class="fa-regular fa-envelope"></i>
+              <i class="fa-solid fa-at"></i>
               <input
-                type="email"
-                id="email"
-                autocomplete="email"
-                placeholder="admin@barbeariavip.com"
+                type="text"
+                id="identifier"
+                autocomplete="username"
+                placeholder="(93) 99999-9999 ou seu@email.com"
                 required
               >
             </div>
@@ -94,6 +94,10 @@
           <button type="submit" class="login-button" id="loginButton">
             <i class="fa-solid fa-right-to-bracket"></i>
             Entrar
+          </button>
+
+          <button type="button" class="forgot-password" id="forgotPassword">
+            Esqueci minha senha
           </button>
         </form>
 

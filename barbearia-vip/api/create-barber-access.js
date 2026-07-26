@@ -14,11 +14,17 @@ module.exports = async function handler(req, res) {
   }
 
   const token = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
-  const { barberId, email, password, fullName } = req.body || {};
+  const { barberId, password, fullName } = req.body || {};
+  const email = String(req.body?.email || "").trim().toLowerCase();
+  let phone = String(req.body?.phone || "").replace(/\D/g, "");
+  if (phone.length === 10 || phone.length === 11) phone = `55${phone}`;
+  phone = phone ? `+${phone}` : "";
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  if (!uuid.test(String(barberId || "")) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "")) ||
-      String(password || "").length < 12 || !/[A-Z]/.test(password) || !/\d/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
-    return res.status(400).json({ error: "Informe e-mail e senha segura com 12+ caracteres, maiúscula, número e símbolo." });
+  if (!uuid.test(String(barberId || "")) || (!email && !phone)
+      || (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      || (phone && !/^\+\d{12,13}$/.test(phone))
+      || String(password || "").length < 6 || String(password || "").length > 128) {
+    return res.status(400).json({ error: "Informe telefone ou e-mail e uma senha com pelo menos 6 caracteres." });
   }
 
   try {
@@ -41,7 +47,12 @@ module.exports = async function handler(req, res) {
     const createResponse = await fetch(`${supabaseUrl}/auth/v1/admin/users`, {
       method: "POST",
       headers: serviceHeaders,
-      body: JSON.stringify({ email, password, email_confirm: true, user_metadata: { full_name: fullName, role: "barber" } })
+      body: JSON.stringify({
+        ...(email ? { email, email_confirm: true } : {}),
+        ...(phone ? { phone, phone_confirm: true } : {}),
+        password,
+        user_metadata: { full_name: fullName, role: "barber" }
+      })
     });
     const created = await createResponse.json();
     if (!createResponse.ok) return res.status(400).json({ error: created.message || "Não foi possível criar o acesso." });
@@ -53,7 +64,9 @@ module.exports = async function handler(req, res) {
         role: "barber",
         business_owner_id: callerProfile.business_owner_id,
         barber_id: barberId,
-        full_name: String(fullName || "").trim()
+        full_name: String(fullName || "").trim(),
+        email: email || null,
+        phone: phone || null
       })
     });
     if (!profileUpdate.ok) {

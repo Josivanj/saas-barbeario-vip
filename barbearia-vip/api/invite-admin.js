@@ -15,16 +15,20 @@ module.exports = async function handler(req, res) {
   const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY || "sb_publishable_HuMY2_GAWEQCujs9UN-YmA_VVoAt_Nb";
   const accessToken = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
   const email = String(req.body?.email || "").trim().toLowerCase();
+  let phone = String(req.body?.phone || "").replace(/\D/g, "");
+  if (phone.length === 10 || phone.length === 11) phone = `55${phone}`;
+  phone = phone ? `+${phone}` : "";
   const fullName = String(req.body?.fullName || "").trim();
   const password = String(req.body?.password || "");
 
   if (!serviceKey) return res.status(503).json({ error: "Cadastro de administradores ainda não configurado na hospedagem." });
   if (!accessToken) return res.status(401).json({ error: "Sessão ausente." });
-  if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !fullName || fullName.length > 100) {
-    return res.status(400).json({ error: "Informe nome e e-mail válidos." });
+  if ((!email && !phone) || (email && (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)))
+      || (phone && !/^\+\d{12,13}$/.test(phone)) || !fullName || fullName.length > 100) {
+    return res.status(400).json({ error: "Informe nome e pelo menos um telefone ou e-mail válido." });
   }
-  if (password.length < 12 || password.length > 128 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
-    return res.status(400).json({ error: "Use uma senha de 12 caracteres com maiúscula, minúscula, número e símbolo." });
+  if (password.length < 6 || password.length > 128) {
+    return res.status(400).json({ error: "Use uma senha entre 6 e 128 caracteres." });
   }
 
   const serviceHeaders = {
@@ -52,9 +56,9 @@ module.exports = async function handler(req, res) {
       method: "POST",
       headers: serviceHeaders,
       body: JSON.stringify({
-        email,
+        ...(email ? { email, email_confirm: true } : {}),
+        ...(phone ? { phone, phone_confirm: true } : {}),
         password,
-        email_confirm: true,
         user_metadata: { full_name: fullName, role: "admin" }
       })
     });
@@ -71,6 +75,8 @@ module.exports = async function handler(req, res) {
       headers: { ...serviceHeaders, Prefer: "return=minimal" },
       body: JSON.stringify({
         full_name: fullName,
+        email: email || null,
+        phone: phone || null,
         role: "admin",
         business_owner_id: profile.business_owner_id || profile.id
       })

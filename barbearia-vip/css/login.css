@@ -267,6 +267,21 @@ input {
   cursor: wait;
 }
 
+.forgot-password {
+  width: 100%;
+  margin-top: 15px;
+  border: 0;
+  background: transparent;
+  color: var(--gold-light);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
 .back-to-site {
   margin-top: 22px;
   color: var(--gold-light);

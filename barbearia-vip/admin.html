@@ -199,14 +199,26 @@
         <div class="admin-card admin-admin-access">
           <div class="admin-card-content">
             <h3>Cadastrar administrador</h3>
-            <p>Crie o acesso diretamente. A pessoa entrará no painel com o e-mail e a senha informados.</p>
+            <p>Crie o acesso com telefone, e-mail ou os dois. A senha deve possuir pelo menos 6 caracteres.</p>
             <form id="inviteAdminForm" class="admin-inline-form">
               <div class="admin-field"><label for="inviteAdminName">Nome</label><input id="inviteAdminName" required placeholder="Nome da pessoa"></div>
-              <div class="admin-field"><label for="inviteAdminEmail">E-mail</label><input id="inviteAdminEmail" type="email" required placeholder="pessoa@email.com"></div>
-              <div class="admin-field"><label for="inviteAdminPassword">Senha inicial</label><input id="inviteAdminPassword" type="password" minlength="12" maxlength="128" required autocomplete="new-password" placeholder="12+ caracteres, maiúscula, número e símbolo"></div>
+              <div class="admin-field"><label for="inviteAdminEmail">E-mail (opcional)</label><input id="inviteAdminEmail" type="email" placeholder="pessoa@email.com"></div>
+              <div class="admin-field"><label for="inviteAdminPhone">Telefone (opcional)</label><input id="inviteAdminPhone" inputmode="tel" placeholder="(93) 99999-9999"></div>
+              <div class="admin-field"><label for="inviteAdminPassword">Senha inicial</label><input id="inviteAdminPassword" type="password" minlength="6" maxlength="128" required autocomplete="new-password" placeholder="Mínimo de 6 caracteres"></div>
               <button class="admin-primary-button" type="submit"><i class="fa-solid fa-user-plus"></i> Cadastrar acesso</button>
             </form>
             <div id="inviteAdminMessage" class="admin-form-message" role="status"></div>
+          </div>
+        </div>
+        <div class="admin-card admin-admin-access">
+          <div class="admin-card-content">
+            <h3>Meu telefone de acesso</h3>
+            <p>Cadastre seu telefone para também entrar no painel usando o número.</p>
+            <form id="myLoginPhoneForm" class="admin-inline-form">
+              <div class="admin-field"><label for="myLoginPhone">Telefone</label><input id="myLoginPhone" inputmode="tel" required placeholder="(93) 99999-9999"></div>
+              <button class="admin-primary-button" type="submit"><i class="fa-solid fa-mobile-screen"></i> Salvar telefone</button>
+            </form>
+            <div id="myLoginPhoneMessage" class="admin-form-message" role="status"></div>
           </div>
         </div>
         <div class="admin-cards-grid" id="adminsAdminList"></div>
@@ -302,10 +314,10 @@
         <fieldset class="admin-access-fields" id="professionalAccessFields">
           <legend>Acesso do barbeiro ao painel</legend>
           <div class="admin-form-row">
-            <div class="admin-field"><label for="professionalEmail">E-mail de acesso</label><input id="professionalEmail" type="email" autocomplete="off" placeholder="barbeiro@email.com"></div>
-            <div class="admin-field"><label for="professionalPassword">Senha inicial</label><input id="professionalPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="12+ caracteres, maiúscula, número e símbolo"></div>
+            <div class="admin-field"><label for="professionalEmail">E-mail de acesso (opcional)</label><input id="professionalEmail" type="email" autocomplete="off" placeholder="barbeiro@email.com"></div>
+            <div class="admin-field"><label for="professionalPassword">Senha inicial</label><input id="professionalPassword" type="password" minlength="6" maxlength="128" autocomplete="new-password" placeholder="Mínimo de 6 caracteres"></div>
           </div>
-          <small>Preencha ao cadastrar. O barbeiro usará o mesmo login do painel administrativo.</small>
+          <small>O barbeiro poderá entrar pelo WhatsApp cadastrado ou pelo e-mail.</small>
         </fieldset>
         <div class="admin-field">
           <label for="professionalImage">Foto</label>

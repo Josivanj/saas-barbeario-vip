@@ -104,7 +104,7 @@ async function saveBarber(barber) {
 
 async function loadBusinessAdmins() {
   const ownerId = await getBusinessOwnerId();
-  const { data, error } = await supabaseClient.from("profiles").select("id,full_name,role,created_at").eq("business_owner_id", ownerId).order("created_at");
+  const { data, error } = await supabaseClient.from("profiles").select("id,full_name,email,phone,role,created_at").eq("business_owner_id", ownerId).order("created_at");
   if (error) throw error;
   return data || [];
 }
