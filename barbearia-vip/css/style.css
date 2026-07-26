@@ -431,6 +431,33 @@ textarea {
     margin-top: 70px;
 }
 
+/* Na vitrine e no agendamento, o cliente escolhe primeiro o modelo do corte. */
+#servicos .container {
+    display: flex;
+    flex-direction: column;
+}
+
+#servicos .section-heading { order: 0; }
+#servicos .haircut-catalog {
+    order: 1;
+    margin-top: 0;
+}
+
+.service-package-catalog-heading {
+    order: 2;
+    margin: 70px 0 28px;
+    text-align: center;
+}
+
+.service-package-catalog-heading h3 {
+    margin: 10px 0;
+    font-family: "Cinzel", serif;
+    font-size: clamp(26px, 4vw, 38px);
+}
+
+.service-package-catalog-heading p { color: var(--muted); }
+#servicos .services-grid { order: 3; }
+
 .haircut-catalog-heading {
     margin-bottom: 28px;
     text-align: center;
@@ -490,7 +517,7 @@ textarea {
 }
 
 @media (max-width: 600px) {
-    .haircut-catalog { margin-top: 48px; }
+    .service-package-catalog-heading { margin-top: 48px; }
     .haircut-style-grid {
         display: flex;
         overflow-x: auto;

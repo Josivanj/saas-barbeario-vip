@@ -13,6 +13,8 @@ async function renderPublicServices(){
  container.innerHTML='<div class="admin-empty">Carregando serviços...</div>';
  const {data,error}=await supabaseClient.from('services').select('id,name,description,price,duration_minutes,image_url').eq('active',true).order('created_at',{ascending:true});
  if(error){console.error(error);container.innerHTML='<div class="admin-empty">Não foi possível carregar os serviços.</div>';return;}
+ const servicesCount=document.getElementById('publicServicesCount');
+ if(servicesCount)servicesCount.textContent=String((data||[]).length);
  container.innerHTML=(data||[]).map(item=>`<article class="service-card service-card-public"><div class="service-content"><div class="service-title"><h3>${vipEscape(item.name)}</h3><strong>${vipMoney(item.price)}</strong></div><p>${vipEscape(item.description||'')}</p><div class="service-actions"><span><i class="fa-regular fa-clock"></i> ${vipFormatDuration(item.duration_minutes)}</span><a href="agendar.html?service=${encodeURIComponent(item.id)}">Agendar serviço</a></div></div><div class="service-image service-image-bottom">${item.image_url?`<img src="${item.image_url}" alt="${vipEscape(item.name)}">`:'<i class="fa-solid fa-scissors"></i>'}</div></article>`).join('')||'<div class="admin-empty">Nenhum serviço disponível.</div>';
 }
 

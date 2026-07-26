@@ -1,10 +1,14 @@
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
+  res.setHeader("X-Content-Type-Options", "nosniff");
   if (req.method !== "POST") return res.status(405).json({ error: "Método não permitido." });
 
   const allowedOrigin = String(process.env.SITE_URL || "https://barbeario-vipcom.vercel.app").replace(/\/$/, "");
   const origin = String(req.headers.origin || "").replace(/\/$/, "");
   if (origin && origin !== allowedOrigin) return res.status(403).json({ error: "Origem não autorizada." });
+  if (!String(req.headers["content-type"] || "").toLowerCase().startsWith("application/json")) {
+    return res.status(415).json({ error: "Formato inválido." });
+  }
 
   const supabaseUrl = process.env.SUPABASE_URL || "https://cggvacqcbdfeshgzzuqf.supabase.co";
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

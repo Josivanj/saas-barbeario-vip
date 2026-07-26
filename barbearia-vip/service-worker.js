@@ -1,4 +1,4 @@
-const CACHE_NAME = "barbearia-vip-v8";
+const CACHE_NAME = "barbearia-vip-v9";
 const PUBLIC_SHELL = [
   "/", "/index.html", "/agendar.html", "/login.html", "/confirmar.html",
   "/manifest.webmanifest", "/admin-manifest.webmanifest", "/css/style.css", "/css/agendar.css", "/css/login.css",
@@ -33,7 +33,7 @@ self.addEventListener("fetch", event => {
           caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
         }
         return response;
-      }).catch(() => caches.match(request).then(cached => cached || caches.match("/index.html")))
+      }).catch(() => caches.match(url.pathname).then(cached => cached || caches.match("/index.html")))
     );
     return;
   }
