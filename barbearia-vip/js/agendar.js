@@ -65,7 +65,7 @@ async function loadServices() {
 
 async function loadProfessionals() {
   const container=$(".professional-options");
-  const { data, error }=await supabaseClient.from("barbers").select("id,name,specialty,image_url").eq("active",true).order("name");
+  const { data, error }=await supabaseClient.rpc("get_public_barbers");
   if(error || !data?.length){ container.innerHTML='<p>Nenhum barbeiro disponível.</p>'; return; }
   container.innerHTML=data.map(p=>`<label class="booking-option professional-option"><input type="radio" name="profissional" value="${escapeHtml(p.name)}" data-id="${p.id}"><div class="professional-option-avatar">${p.image_url?`<img src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name)}">`:'<i class="fa-solid fa-user"></i>'}</div><div class="option-info"><strong>${escapeHtml(p.name)}</strong><span>${escapeHtml(p.specialty||'Profissional')}</span></div></label>`).join("");
   container.querySelectorAll('input[name="profissional"]').forEach(input=>input.addEventListener("change",()=>{ bookingData.professionalId=input.dataset.id; bookingData.professional=input.value; $$('.professional-options .booking-option').forEach(x=>x.classList.toggle('selected',x.contains(input))); refreshAvailability(); updateSummary(); }));
@@ -90,10 +90,13 @@ bookingForm.addEventListener('submit',async event=>{
   // A mesma validação é refeita dentro da transação, eliminando corrida entre clientes.
   const { data, error }=await supabaseClient.rpc('create_public_appointment',{p_barber_id:bookingData.professionalId,p_service_id:bookingData.serviceId,p_date:bookingData.date,p_time:bookingData.time,p_client_name:name,p_client_phone:phone,p_notes:notes||null});
   if(error){console.error(error);alert(error.message?.includes('HORARIO_INDISPONIVEL')?'Este horário não está disponível.':'Não foi possível concluir o agendamento.');await refreshAvailability();if(button)button.disabled=false;return;}
-  const newBooking={id:data,service:bookingData.service,professional:bookingData.professional,date:bookingData.date,time:bookingData.time,name,phone,notes,status:'Aguardando confirmação',durationMinutes:bookingData.durationMinutes,price:bookingData.price};
+  const appointmentId=data?.id;
+  const notificationToken=data?.notification_token;
+  if(!appointmentId||!notificationToken){alert('O agendamento foi criado, mas a confirmação de segurança falhou. Fale com a barbearia.');if(button)button.disabled=false;return;}
+  const newBooking={id:appointmentId,service:bookingData.service,professional:bookingData.professional,date:bookingData.date,time:bookingData.time,name,phone,notes,status:'Aguardando confirmação',durationMinutes:bookingData.durationMinutes,price:bookingData.price};
   localStorage.setItem('barbeariaVipLatestBookingNotification',JSON.stringify(newBooking));
   // A reserva continua salva mesmo se o provedor de WhatsApp estiver temporariamente indisponível.
-  fetch('/api/send-whatsapp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bookingId:data})})
+  fetch('/api/send-whatsapp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bookingId:appointmentId,notificationToken})})
     .then(response=>response.ok?null:response.json().then(result=>console.warn(result.error)))
     .catch(error=>console.warn('Notificação do WhatsApp não enviada:',error));
   $('#successDetails').innerHTML=`<p><strong>Cliente:</strong> ${escapeHtml(name)}</p><p><strong>Serviço:</strong> ${escapeHtml(bookingData.service)}</p><p><strong>Profissional:</strong> ${escapeHtml(bookingData.professional)}</p><p><strong>Data:</strong> ${formatDate(bookingData.date)}</p><p><strong>Horário:</strong> ${bookingData.time}</p><p><strong>Valor:</strong> ${money(bookingData.price)}</p>`;

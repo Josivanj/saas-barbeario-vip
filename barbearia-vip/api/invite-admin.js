@@ -1,7 +1,15 @@
 // Cria administradores no servidor sem expor a chave privilegiada no navegador.
 module.exports = async function handler(req, res) {
+  res.setHeader("Cache-Control", "no-store");
+  res.setHeader("X-Content-Type-Options", "nosniff");
   if (req.method !== "POST") return res.status(405).json({ error: "Método não permitido." });
 
+  const allowedOrigin = String(process.env.SITE_URL || "https://barbeario-vipcom.vercel.app").replace(/\/$/, "");
+  const origin = String(req.headers.origin || "").replace(/\/$/, "");
+  if (origin && origin !== allowedOrigin) return res.status(403).json({ error: "Origem não autorizada." });
+  if (!String(req.headers["content-type"] || "").toLowerCase().startsWith("application/json")) {
+    return res.status(415).json({ error: "Formato inválido." });
+  }
   const supabaseUrl = process.env.SUPABASE_URL || "https://cggvacqcbdfeshgzzuqf.supabase.co";
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY || "sb_publishable_HuMY2_GAWEQCujs9UN-YmA_VVoAt_Nb";
@@ -12,10 +20,12 @@ module.exports = async function handler(req, res) {
 
   if (!serviceKey) return res.status(503).json({ error: "Cadastro de administradores ainda não configurado na hospedagem." });
   if (!accessToken) return res.status(401).json({ error: "Sessão ausente." });
-  if (!email || !/^\S+@\S+\.\S+$/.test(email) || !fullName) {
+  if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !fullName || fullName.length > 100) {
     return res.status(400).json({ error: "Informe nome e e-mail válidos." });
   }
-  if (password.length < 8) return res.status(400).json({ error: "A senha precisa ter pelo menos 8 caracteres." });
+  if (password.length < 12 || password.length > 128 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
+    return res.status(400).json({ error: "Use uma senha de 12 caracteres com maiúscula, minúscula, número e símbolo." });
+  }
 
   const serviceHeaders = {
     apikey: serviceKey,
@@ -72,7 +82,7 @@ module.exports = async function handler(req, res) {
     }
 
     return res.status(200).json({ ok: true });
-  } catch (error) {
-    return res.status(500).json({ error: error.message || "Erro interno." });
+  } catch {
+    return res.status(500).json({ error: "Erro interno ao cadastrar o administrador." });
   }
 };

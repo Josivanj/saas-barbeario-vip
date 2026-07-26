@@ -198,7 +198,7 @@
             <form id="inviteAdminForm" class="admin-inline-form">
               <div class="admin-field"><label for="inviteAdminName">Nome</label><input id="inviteAdminName" required placeholder="Nome da pessoa"></div>
               <div class="admin-field"><label for="inviteAdminEmail">E-mail</label><input id="inviteAdminEmail" type="email" required placeholder="pessoa@email.com"></div>
-              <div class="admin-field"><label for="inviteAdminPassword">Senha inicial</label><input id="inviteAdminPassword" type="password" minlength="8" required autocomplete="new-password" placeholder="Mínimo de 8 caracteres"></div>
+              <div class="admin-field"><label for="inviteAdminPassword">Senha inicial</label><input id="inviteAdminPassword" type="password" minlength="12" maxlength="128" required autocomplete="new-password" placeholder="12+ caracteres, maiúscula, número e símbolo"></div>
               <button class="admin-primary-button" type="submit"><i class="fa-solid fa-user-plus"></i> Cadastrar acesso</button>
             </form>
             <div id="inviteAdminMessage" class="admin-form-message" role="status"></div>
