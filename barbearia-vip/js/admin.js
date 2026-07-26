@@ -490,7 +490,8 @@ $("#professionalForm")?.addEventListener("submit", async event => {
     alert("Informe um expediente válido: entrada < almoço < retorno < saída."); return;
   }
   const data = {
-    id: id || Date.now(),
+    // Novos barbeiros recebem o UUID diretamente do Supabase.
+    id: id || null,
     name: $("#professionalName").value.trim(),
     specialty: $("#professionalSpecialty").value.trim(),
     whatsapp: $("#professionalWhatsapp").value.trim(),
