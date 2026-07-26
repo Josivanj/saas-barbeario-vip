@@ -47,7 +47,10 @@ async function renderPublicGallery(){
  const {data:gallery,error}=await supabaseClient.rpc('get_public_gallery');
  const gc=document.querySelector('.gallery-grid');
  if(error){console.error(error);return;}
- if(gc&&gallery?.length)gc.innerHTML=gallery.map(item=>`<article class="public-gallery-card"><img src="${item.image_url}" alt="${vipEscape(item.title)}"><div class="public-gallery-overlay"><span>${vipEscape(item.title)}</span></div></article>`).join('');
+ if(gc&&gallery?.length)gc.innerHTML=gallery.map(item=>{
+  const title=/^[\s.,;:!?-]*$/.test(item.title||'')?'Corte VIP':item.title;
+  return `<article class="public-gallery-card"><img src="${item.image_url}" alt="${vipEscape(title)}"><div class="public-gallery-overlay"><span>${vipEscape(title)}</span></div></article>`;
+ }).join('');
 }
 
 function renderLocalPlans(){

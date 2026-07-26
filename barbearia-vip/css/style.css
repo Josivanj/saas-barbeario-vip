@@ -1051,27 +1051,45 @@ textarea {
     .gallery-arrow { display: none; }
 }
 
-/* No celular, cada trabalho vira um quadrado e a foto aparece inteira. */
+/* Galeria móvel: uma foto horizontal por vez, sem faixas pretas. */
 @media (max-width: 900px) {
+    #galeria.section {
+        padding: 65px 0 45px;
+    }
+
+    #galeria .section-heading {
+        margin-bottom: 30px;
+    }
+
     .gallery-grid {
         padding-inline: 2px;
+        padding-bottom: 8px;
     }
 
     .gallery-grid > * {
-        flex: 0 0 min(82vw, 390px);
+        flex: 0 0 100%;
     }
 
     .gallery-item,
     .public-gallery-card {
-        width: min(82vw, 390px);
+        width: 100%;
         min-height: 0;
         max-height: none;
-        aspect-ratio: 1 / 1 !important;
+        aspect-ratio: 4 / 3 !important;
+        border-radius: 16px;
     }
 
     .public-gallery-card img {
-        object-fit: contain !important;
-        background: #090909;
+        object-fit: cover !important;
+        object-position: center;
+    }
+
+    .public-gallery-overlay {
+        padding: 42px 16px 14px;
+    }
+
+    .public-gallery-overlay span {
+        font-size: 15px;
     }
 }
 
