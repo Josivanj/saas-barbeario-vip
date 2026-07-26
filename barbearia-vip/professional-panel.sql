@@ -6,6 +6,17 @@ alter table public.profiles
   add column if not exists barber_id uuid references public.barbers(id) on delete set null;
 create index if not exists profiles_barber_id_idx on public.profiles(barber_id);
 
+-- Necessário para o painel receber novos agendamentos em tempo real.
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname='supabase_realtime' and schemaname='public' and tablename='appointments'
+  ) then
+    alter publication supabase_realtime add table public.appointments;
+  end if;
+end $$;
+
 create or replace function public.is_business_admin()
 returns boolean language sql stable security definer set search_path=public
 as $$ select exists(select 1 from profiles where id=auth.uid() and role in ('owner','admin')) $$;

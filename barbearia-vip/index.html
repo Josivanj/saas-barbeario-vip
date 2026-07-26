@@ -8,17 +8,17 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-<a href="admin.html" class="admin-access-link">
-    <i class="fa-solid fa-lock"></i>
-    Painel
-</a>
-
     <meta
         name="description"
         content="Barbearia VIP - Agendamento online, cortes masculinos, barba e serviços premium."
     >
 
     <title>Barbearia VIP</title>
+    <meta name="theme-color" content="#080808">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="assets/app-icon-192.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,6 +34,7 @@
     >
 
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/pwa.css">
 </head>
 
 <body>
@@ -57,6 +58,7 @@
                 <a href="#galeria">Galeria</a>
                 <a href="#planos">Planos</a>
                 <a href="#contato">Contato</a>
+                <a href="admin.html" class="admin-access-link"><i class="fa-solid fa-lock"></i> Painel</a>
             </nav>
 
             <a href="agendar.html" class="button button-small desktop-button">
@@ -647,5 +649,6 @@
     <script src="js/supabase-config.js"></script>
     <script src="js/script.js"></script>
     <script src="js/site-data.js"></script>
+    <script src="js/pwa.js"></script>
 </body>
 </html>

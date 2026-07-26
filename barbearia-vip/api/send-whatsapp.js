@@ -43,7 +43,7 @@ module.exports = async function handler(req, res) {
     }
 
     const confirmationUrl = `${allowedOrigin}/confirmar.html?token=${encodeURIComponent(booking.confirmation_token)}`;
-    const text = `💈 *Novo agendamento — confirme o atendimento*\n\n👤 Cliente: ${booking.client_name}\n✂️ Serviço: ${booking.service}\n💇 Profissional: ${booking.barber}\n📅 Data: ${booking.appointment_date}\n🕒 Horário: ${booking.appointment_time}\n📞 Cliente: ${booking.client_phone}${booking.notes ? `\n📝 Observação: ${booking.notes}` : ""}\n\n✅ *Confirmar agendamento:*\n${confirmationUrl}`;
+    const text = `💈 *Novo agendamento — responda pelo site*\n\n👤 Cliente: ${booking.client_name}\n✂️ Serviço: ${booking.service}\n💇 Profissional: ${booking.barber}\n📅 Data: ${booking.appointment_date}\n🕒 Horário: ${booking.appointment_time}\n📞 Cliente: ${booking.client_phone}${booking.notes ? `\n📝 Observação: ${booking.notes}` : ""}\n\n✅ *Confirmar ou recusar:*\n${confirmationUrl}`;
 
     const response = await fetch(`${baseUrl.replace(/\/$/, "")}/message/sendText/${encodeURIComponent(instance)}`, {
       method: "POST",
