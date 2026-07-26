@@ -53,6 +53,19 @@ async function renderPublicGallery(){
  }).join('');
 }
 
+async function renderPublicHaircutStyles(){
+ const container=document.getElementById('homeHaircutStyles');
+ if(!container)return;
+ const {data,error}=await supabaseClient.rpc('get_public_gallery');
+ if(error){console.error(error);return;}
+ const styles=(data||[]).filter(item=>String(item.image_url||'').includes('/assets/gallery/'));
+ container.innerHTML=styles.map(item=>`
+  <a class="haircut-style-card" href="agendar.html?style=${encodeURIComponent(item.title)}">
+   <img src="${item.image_url}" alt="${vipEscape(item.title)}" loading="lazy">
+   <span>${vipEscape(item.title)}</span>
+  </a>`).join('');
+}
+
 function renderLocalPlans(){
  const section=document.getElementById('planos'); const plans=JSON.parse(localStorage.getItem('barbeariaVipPlans')||'[]'); const enabled=localStorage.getItem('barbeariaVipPlansEnabled')!=='false';
  if(section){section.hidden=!enabled;if(enabled&&plans.length){const grid=section.querySelector('.plans-grid');grid.innerHTML=plans.map(p=>`<article class="plan-card ${p.popular?'featured-plan':''}">${p.popular?'<div class="plan-badge">Mais popular</div>':''}<span>${vipEscape(p.name)}</span><h3>${vipMoney(p.price)}</h3><small>por mês</small><ul>${(p.benefits||[]).map(b=>`<li><i class="fa-solid fa-check"></i>${vipEscape(b)}</li>`).join('')}</ul><a href="https://wa.me/" class="button button-outline button-full">Escolher plano</a></article>`).join('');}}
@@ -79,4 +92,5 @@ renderPublicServices();
 renderPublicProfessionals();
 renderPublicContact();
 renderLocalPlans();
+renderPublicHaircutStyles();
 renderPublicGallery().finally(initializeGalleryCarousel);

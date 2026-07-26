@@ -427,6 +427,84 @@ textarea {
     transition: 0.3s;
 }
 
+.haircut-catalog {
+    margin-top: 70px;
+}
+
+.haircut-catalog-heading {
+    margin-bottom: 28px;
+    text-align: center;
+}
+
+.haircut-catalog-heading h3 {
+    margin: 10px 0;
+    font-family: "Cinzel", serif;
+    font-size: clamp(26px, 4vw, 38px);
+}
+
+.haircut-catalog-heading p {
+    color: var(--muted);
+}
+
+.haircut-style-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.haircut-style-card {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 1;
+    border: 1px solid rgba(232, 181, 75, .35);
+    border-radius: 14px;
+    color: var(--white);
+    background: #111;
+}
+
+.haircut-style-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform .3s ease;
+}
+
+.haircut-style-card span {
+    position: absolute;
+    inset: auto 0 0;
+    padding: 35px 10px 10px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, .95));
+    color: var(--gold-light);
+    font-size: 12px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.haircut-style-card:hover img {
+    transform: scale(1.05);
+}
+
+@media (max-width: 1000px) {
+    .haircut-style-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 600px) {
+    .haircut-catalog { margin-top: 48px; }
+    .haircut-style-grid {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        gap: 12px;
+    }
+    .haircut-style-grid::-webkit-scrollbar { display: none; }
+    .haircut-style-card {
+        flex: 0 0 62%;
+        scroll-snap-align: start;
+    }
+}
+
 .service-card:hover {
     transform: translateY(-7px);
     border-color: var(--border);

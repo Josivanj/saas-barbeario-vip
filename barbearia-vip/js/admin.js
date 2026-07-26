@@ -324,6 +324,7 @@ function renderBookings() {
       <div><span>Barbeiro</span><strong>${escapeHtml(item.professional || "—")}</strong></div>
       <div><span>Data</span><strong>${formatDate(item.date)}</strong></div>
       <div><span>Horário</span><strong>${escapeHtml(item.time || "—")}</strong></div>
+      ${item.notes ? `<div><span>Estilo/observação</span><strong>${escapeHtml(item.notes)}</strong></div>` : ""}
       <div class="admin-status">${escapeHtml(bookingStatusLabel(item.status))}</div>
       <div class="admin-booking-actions">
         ${item.status === "pending" ? `<button class="admin-action" data-booking-status="${item.id}:confirmed"><i class="fa-solid fa-check"></i> Confirmar</button>` : ""}

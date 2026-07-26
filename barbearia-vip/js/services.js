@@ -164,13 +164,13 @@ async function deleteBarber(id) {
 async function loadAppointments() {
   const profile = window.BARBEARIA_VIP_PROFILE || {};
   let query = supabaseClient.from("appointments")
-    .select("id,barber_id,client_name,appointment_date,appointment_time,duration_minutes,status,services(name),barbers(name)")
+    .select("id,barber_id,client_name,appointment_date,appointment_time,duration_minutes,status,notes,services(name),barbers(name)")
     .order("appointment_date", { ascending: false }).order("appointment_time", { ascending: false });
   if (profile.role === "barber" && profile.barber_id) query = query.eq("barber_id", profile.barber_id);
   const { data, error } = await query;
   if (error) throw error;
   return (data || []).map(a => ({ id:a.id, barberId:a.barber_id, name:a.client_name, service:a.services?.name, professional:a.barbers?.name,
-    date:a.appointment_date, time:String(a.appointment_time).slice(0,5), durationMinutes:a.duration_minutes, status:a.status }));
+    date:a.appointment_date, time:String(a.appointment_time).slice(0,5), durationMinutes:a.duration_minutes, status:a.status, notes:a.notes || "" }));
 }
 
 async function updateAppointmentStatus(id, status) {

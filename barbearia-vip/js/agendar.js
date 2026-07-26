@@ -5,7 +5,7 @@ const $$ = selector => [...document.querySelectorAll(selector)];
 const bookingForm = $("#bookingForm");
 const bookingDate = $("#bookingDate");
 const timeGrid = $("#timeGrid");
-const bookingData = { serviceId: "", service: "", durationMinutes: 0, professionalId: "", professional: "", professionalPhone: "", date: "", time: "", price: 0 };
+const bookingData = { serviceId: "", service: "", haircutStyle: "", haircutImage: "", durationMinutes: 0, professionalId: "", professional: "", professionalPhone: "", date: "", time: "", price: 0 };
 let availabilityRequest = 0;
 
 function escapeHtml(value = "") { return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c])); }
@@ -24,6 +24,8 @@ function updateSummary() {
   $("#summaryEmpty").style.display = any ? "none" : "block";
   $("#summaryContent").classList.toggle("visible", Boolean(any));
   $("#summaryService").textContent = bookingData.service || "Não selecionado";
+  $("#summaryStyle").textContent = bookingData.haircutStyle || "Não selecionado";
+  $("#summaryStyleRow").hidden = !bookingData.haircutStyle;
   $("#summaryProfessional").textContent = bookingData.professional || "Não selecionado";
   $("#summaryDate").textContent = bookingData.date ? formatDate(bookingData.date) : "Não selecionada";
   $("#summaryTime").textContent = bookingData.time || "Não selecionado";
@@ -56,11 +58,28 @@ async function refreshAvailability() {
 
 async function loadServices() {
   const container = $(".services-options");
-  const { data, error } = await supabaseClient.from("services").select("id,name,price,duration_minutes").eq("active",true).order("created_at");
+  const { data, error } = await supabaseClient.from("services").select("id,name,price,duration_minutes,image_url").eq("active",true).order("created_at");
   if (error || !data?.length) { container.innerHTML='<p>Não foi possível carregar os serviços.</p>'; return; }
-  container.innerHTML=data.map(s=>`<label class="booking-option"><input type="radio" name="servico" value="${escapeHtml(s.name)}" data-id="${s.id}" data-price="${s.price}" data-minutes="${s.duration_minutes}"><div class="option-icon"><i class="fa-solid fa-scissors"></i></div><div class="option-info"><strong>${escapeHtml(s.name)}</strong><span>${durationLabel(s.duration_minutes)}</span></div><div class="option-price">${money(s.price)}</div></label>`).join("");
-  container.querySelectorAll('input[name="servico"]').forEach(input=>input.addEventListener("change",()=>{ bookingData.serviceId=input.dataset.id; bookingData.service=input.value; bookingData.price=Number(input.dataset.price); bookingData.durationMinutes=Number(input.dataset.minutes); $$('.services-options .booking-option').forEach(x=>x.classList.toggle('selected',x.contains(input))); refreshAvailability(); updateSummary(); }));
+  container.innerHTML=data.map(s=>`<label class="booking-option"><input type="radio" name="servico" value="${escapeHtml(s.name)}" data-id="${s.id}" data-price="${s.price}" data-minutes="${s.duration_minutes}"><div class="option-icon">${s.image_url?`<img src="${s.image_url}" alt="">`:'<i class="fa-solid fa-scissors"></i>'}</div><div class="option-info"><strong>${escapeHtml(s.name)}</strong><span>${durationLabel(s.duration_minutes)}</span></div><div class="option-price">${money(s.price)}</div></label>`).join("");
+  container.querySelectorAll('input[name="servico"]').forEach(input=>input.addEventListener("change",()=>{ bookingData.serviceId=input.dataset.id; bookingData.service=input.value; bookingData.price=Number(input.dataset.price); bookingData.durationMinutes=Number(input.dataset.minutes); $$('.services-options .booking-option').forEach(x=>x.classList.toggle('selected',x.contains(input))); $("#bookingHaircutPicker").hidden=!/corte/i.test(bookingData.service); refreshAvailability(); updateSummary(); }));
   const requested=new URLSearchParams(location.search).get("service"); const input=requested&&container.querySelector(`input[data-id="${CSS.escape(requested)}"]`); if(input){input.checked=true;input.dispatchEvent(new Event("change"));}
+}
+
+async function loadHaircutStyles() {
+  const container = $("#bookingHaircutStyles");
+  const { data, error } = await supabaseClient.rpc("get_public_gallery");
+  if (error) { console.error(error); container.innerHTML="<p>Não foi possível carregar os modelos.</p>"; return; }
+  const styles=(data||[]).filter(item=>String(item.image_url||"").includes("/assets/gallery/"));
+  container.innerHTML=styles.map(item=>`<label class="haircut-booking-option"><input type="radio" name="haircutStyle" value="${escapeHtml(item.title)}" data-image="${item.image_url}"><img src="${item.image_url}" alt="${escapeHtml(item.title)}" loading="lazy"><span>${escapeHtml(item.title)}</span></label>`).join("");
+  container.querySelectorAll('input[name="haircutStyle"]').forEach(input=>input.addEventListener("change",()=>{
+    bookingData.haircutStyle=input.value;
+    bookingData.haircutImage=input.dataset.image||"";
+    $$(".haircut-booking-option").forEach(option=>option.classList.toggle("selected",option.contains(input)));
+    updateSummary();
+  }));
+  const requested=new URLSearchParams(location.search).get("style");
+  const requestedInput=requested&&[...container.querySelectorAll('input[name="haircutStyle"]')].find(input=>input.value===requested);
+  if(requestedInput){requestedInput.checked=true;requestedInput.dispatchEvent(new Event("change"));}
 }
 
 async function loadProfessionals() {
@@ -73,12 +92,13 @@ async function loadProfessionals() {
 
 function validateStep(step) {
   if(step===1&&!bookingData.service){alert("Escolha um serviço para continuar.");return false;}
+  if(step===1&&/corte/i.test(bookingData.service)&&!bookingData.haircutStyle){alert("Escolha o estilo do corte para continuar.");return false;}
   if(step===2&&!bookingData.professional){alert("Escolha um profissional para continuar.");return false;}
   if(step===3&&(!bookingData.date||!bookingData.time)){alert(!bookingData.date?"Escolha a data do agendamento.":"Escolha um horário.");return false;}
   return true;
 }
 
-$$('.next-button').forEach(button=>button.addEventListener('click',()=>{const current=Number(button.closest('.booking-step').dataset.step);if(!validateStep(current))return;const next=Number(button.dataset.next);if(next===4)$('#finalSummary').innerHTML=`<h3>Resumo do agendamento</h3><p><strong>Serviço:</strong> ${escapeHtml(bookingData.service)}</p><p><strong>Profissional:</strong> ${escapeHtml(bookingData.professional)}</p><p><strong>Data:</strong> ${formatDate(bookingData.date)}</p><p><strong>Horário:</strong> ${bookingData.time}</p><p><strong>Duração:</strong> ${durationLabel(bookingData.durationMinutes)}</p><p><strong>Valor:</strong> ${money(bookingData.price)}</p>`;showStep(next);}));
+$$('.next-button').forEach(button=>button.addEventListener('click',()=>{const current=Number(button.closest('.booking-step').dataset.step);if(!validateStep(current))return;const next=Number(button.dataset.next);if(next===4)$('#finalSummary').innerHTML=`<h3>Resumo do agendamento</h3><p><strong>Serviço:</strong> ${escapeHtml(bookingData.service)}</p>${bookingData.haircutStyle?`<p><strong>Estilo:</strong> ${escapeHtml(bookingData.haircutStyle)}</p>`:""}<p><strong>Profissional:</strong> ${escapeHtml(bookingData.professional)}</p><p><strong>Data:</strong> ${formatDate(bookingData.date)}</p><p><strong>Horário:</strong> ${bookingData.time}</p><p><strong>Duração:</strong> ${durationLabel(bookingData.durationMinutes)}</p><p><strong>Valor:</strong> ${money(bookingData.price)}</p>`;showStep(next);}));
 $$('.previous-button').forEach(button=>button.addEventListener('click',()=>showStep(Number(button.dataset.previous))));
 bookingDate.addEventListener('change',()=>{bookingData.date=bookingDate.value;refreshAvailability();updateSummary();});
 $('#clientPhone').addEventListener('input',e=>{let v=e.target.value.replace(/\D/g,'').slice(0,11);if(v.length>10)v=v.replace(/(\d{2})(\d{5})(\d{4})/,'($1) $2-$3');else if(v.length>6)v=v.replace(/(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3');else if(v.length>2)v=v.replace(/(\d{2})(\d+)/,'($1) $2');e.target.value=v;});
@@ -88,7 +108,8 @@ bookingForm.addEventListener('submit',async event=>{
   if(!name){alert('Digite seu nome completo.');return;} if(phone.length<14){alert('Digite um número de WhatsApp válido.');return;}
   const button=event.submitter; if(button)button.disabled=true;
   // A mesma validação é refeita dentro da transação, eliminando corrida entre clientes.
-  const { data, error }=await supabaseClient.rpc('create_public_appointment',{p_barber_id:bookingData.professionalId,p_service_id:bookingData.serviceId,p_date:bookingData.date,p_time:bookingData.time,p_client_name:name,p_client_phone:phone,p_notes:notes||null});
+  const appointmentNotes=[bookingData.haircutStyle?`Estilo do corte: ${bookingData.haircutStyle}`:"",notes].filter(Boolean).join("\n");
+  const { data, error }=await supabaseClient.rpc('create_public_appointment',{p_barber_id:bookingData.professionalId,p_service_id:bookingData.serviceId,p_date:bookingData.date,p_time:bookingData.time,p_client_name:name,p_client_phone:phone,p_notes:appointmentNotes||null});
   if(error){console.error(error);alert(error.message?.includes('HORARIO_INDISPONIVEL')?'Este horário não está disponível.':'Não foi possível concluir o agendamento.');await refreshAvailability();if(button)button.disabled=false;return;}
   const appointmentId=data?.id;
   const notificationToken=data?.notification_token;
@@ -101,7 +122,7 @@ bookingForm.addEventListener('submit',async event=>{
   const whatsappButton=$('#whatsappConfirmation');
   // Se o envio automático não estiver configurado, o cliente encaminha a
   // notificação segura ao WhatsApp do barbeiro selecionado.
-  const notificationMessage=`Novo agendamento na Barbearia VIP.\n\nCliente: ${name}\nServiço: ${bookingData.service}\nProfissional: ${bookingData.professional}\nData: ${formatDate(bookingData.date)}\nHorário: ${bookingData.time}\nDuração: ${durationLabel(bookingData.durationMinutes)}\nValor: ${money(bookingData.price)}\n\nConfirme ou recuse pelo link:\n${confirmationUrl}`;
+  const notificationMessage=`Novo agendamento na Barbearia VIP.\n\nCliente: ${name}\nServiço: ${bookingData.service}${bookingData.haircutStyle?`\nEstilo: ${bookingData.haircutStyle}`:""}\nProfissional: ${bookingData.professional}\nData: ${formatDate(bookingData.date)}\nHorário: ${bookingData.time}\nDuração: ${durationLabel(bookingData.durationMinutes)}\nValor: ${money(bookingData.price)}\n\nConfirme ou recuse pelo link:\n${confirmationUrl}`;
   whatsappButton.hidden=!barberPhone;
   whatsappButton.onclick=()=>window.open(`https://wa.me/${barberPhone}?text=${encodeURIComponent(notificationMessage)}`,'_blank','noopener');
   fetch('/api/send-whatsapp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bookingId:appointmentId,notificationToken})})
@@ -112,4 +133,4 @@ bookingForm.addEventListener('submit',async event=>{
 });
 
 const today=new Date(), offset=today.getTimezoneOffset();bookingDate.min=new Date(today.getTime()-offset*60000).toISOString().slice(0,10);
-clearTime();loadServices();loadProfessionals();updateSummary();
+clearTime();loadServices();loadHaircutStyles();loadProfessionals();updateSummary();

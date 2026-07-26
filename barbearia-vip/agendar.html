@@ -235,6 +235,14 @@
 
                             </div>
 
+                            <div class="booking-haircut-picker" id="bookingHaircutPicker" hidden>
+                                <div class="haircut-picker-heading">
+                                    <span>Agora escolha o estilo do corte</span>
+                                    <p>A foto será enviada ao barbeiro junto com seu agendamento.</p>
+                                </div>
+                                <div class="haircut-style-options" id="bookingHaircutStyles"></div>
+                            </div>
+
                             <div class="step-actions">
                                 <span></span>
 
@@ -650,6 +658,11 @@
                         <div class="summary-row">
                             <span>Serviço</span>
                             <strong id="summaryService">Não selecionado</strong>
+                        </div>
+
+                        <div class="summary-row" id="summaryStyleRow" hidden>
+                            <span>Estilo do corte</span>
+                            <strong id="summaryStyle">Não selecionado</strong>
                         </div>
 
                         <div class="summary-row">
