@@ -4,7 +4,6 @@
 
 const STORAGE = {
   professionals: "barbeariaVipProfessionals",
-  gallery: "barbeariaVipGallery",
   bookings: "barbeariaVipBookings",
   plans: "barbeariaVipPlans",
   plansEnabled: "barbeariaVipPlansEnabled"
@@ -27,7 +26,7 @@ function readStorage(key, fallback = []) {
 
 let services = [];
 let professionals = [];
-let gallery = readStorage(STORAGE.gallery, []);
+let gallery = [];
 let bookings = [];
 let businessAdmins = [];
 let businessSettings = { whatsapp: "", instagram: "" };
@@ -46,7 +45,6 @@ const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
 
 function saveLocalData() {
-  localStorage.setItem(STORAGE.gallery, JSON.stringify(gallery));
   localStorage.setItem(STORAGE.plans, JSON.stringify(plans));
   updateDashboard();
 }
@@ -291,7 +289,7 @@ function renderGallery() {
 
   container.innerHTML = gallery.map(item => `
     <article class="admin-gallery-card">
-      <img src="${item.image}" alt="${escapeHtml(item.title)}">
+      <img src="${item.image_url}" alt="${escapeHtml(item.title)}">
 
       <div class="admin-gallery-caption">
         <strong>${escapeHtml(item.title)}</strong>
@@ -540,7 +538,7 @@ $("#professionalForm")?.addEventListener("submit", async event => {
   catch(error) { showError(error,"Não foi possível salvar o barbeiro."); }
 });
 
-$("#galleryForm")?.addEventListener("submit", event => {
+$("#galleryForm")?.addEventListener("submit", async event => {
   event.preventDefault();
 
   if (!galleryImage) {
@@ -548,16 +546,41 @@ $("#galleryForm")?.addEventListener("submit", event => {
     return;
   }
 
-  gallery.push({
-    id: Date.now(),
-    title: $("#galleryTitle").value.trim(),
-    image: galleryImage
-  });
-
-  saveLocalData();
-  renderGallery();
-  closeModal("galleryModal");
+  const submitButton = event.submitter;
+  try {
+    if (submitButton) submitButton.disabled = true;
+    await createGalleryItem({ title: $("#galleryTitle").value.trim(), image_url: galleryImage });
+    gallery = await loadGallery();
+    renderGallery();
+    updateDashboard();
+    closeModal("galleryModal");
+  } catch (error) {
+    showError(error, "Não foi possível salvar a foto na galeria.");
+  } finally {
+    if (submitButton) submitButton.disabled = false;
+  }
 });
+
+// Migra uma única vez as fotos que versões antigas salvavam somente no aparelho.
+// Assim, ao abrir o painel atualizado no celular, essas fotos passam a aparecer
+// também no computador e nos demais dispositivos conectados ao mesmo negócio.
+async function migrateLegacyGallery() {
+  const legacyKey = "barbeariaVipGallery";
+  const legacyItems = readStorage(legacyKey, []);
+  if (!Array.isArray(legacyItems) || !legacyItems.length) return;
+
+  const remoteItems = await loadGallery();
+  const remoteImages = new Set(remoteItems.map(item => item.image_url));
+  for (const item of legacyItems) {
+    const imageUrl = item.image_url || item.image;
+    if (!imageUrl || remoteImages.has(imageUrl)) continue;
+    await createGalleryItem({
+      title: item.title || "Galeria",
+      image_url: imageUrl
+    });
+  }
+  localStorage.removeItem(legacyKey);
+}
 
 document.addEventListener("click", async event => {
   const serviceEdit = event.target.closest("[data-edit-service]");
@@ -606,11 +629,14 @@ document.addEventListener("click", async event => {
   }
 
   if (galleryDelete && confirm("Excluir esta foto?")) {
-    gallery = gallery.filter(
-      item => item.id !== Number(galleryDelete.dataset.deleteGallery)
-    );
-    saveLocalData();
-    renderGallery();
+    try {
+      await deleteGalleryItem(galleryDelete.dataset.deleteGallery);
+      gallery = await loadGallery();
+      renderGallery();
+      updateDashboard();
+    } catch (error) {
+      showError(error, "Não foi possível excluir a foto.");
+    }
   }
 });
 
@@ -814,11 +840,14 @@ async function initializeAdmin() {
     if (isBarber) {
       bookings = await loadAppointments();
     } else {
-      [services, professionals, bookings, businessAdmins, businessSettings] = await Promise.all([loadServices(), loadBarbers(), loadAppointments(), loadBusinessAdmins(), loadBusinessSettings()]);
+      await migrateLegacyGallery();
+      [services, professionals, bookings, businessAdmins, businessSettings, gallery] = await Promise.all([
+        loadServices(), loadBarbers(), loadAppointments(), loadBusinessAdmins(), loadBusinessSettings(), loadGallery()
+      ]);
     }
   } catch (error) {
     showError(error, "Não foi possível carregar os serviços do Supabase.");
-    services = []; professionals = []; bookings = []; businessAdmins = []; businessSettings = { whatsapp: "", instagram: "" };
+    services = []; professionals = []; bookings = []; businessAdmins = []; gallery = []; businessSettings = { whatsapp: "", instagram: "" };
   }
 
   renderServices();

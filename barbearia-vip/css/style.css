@@ -287,25 +287,32 @@ textarea {
 }
 
 .hero-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     padding: 40px;
-    background: linear-gradient(145deg, rgba(28, 28, 28, 0.98), rgba(12, 12, 12, 0.98));
+    background: #111;
     border: 1px solid var(--border);
     border-radius: 20px;
     text-align: center;
     box-shadow: var(--shadow);
 }
 
-.hero-card-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 20px;
-    border-radius: 50%;
-    background: rgba(214, 167, 67, 0.12);
-    color: var(--gold-light);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 34px;
+.hero-card::before {
+    content: "";
+    position: absolute;
+    z-index: -2;
+    inset: 0;
+    background: url("../assets/hero-barber-v2.webp") center 34% / cover no-repeat;
+    transform: scale(1.02);
+}
+
+.hero-card::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(5,5,5,.18), rgba(5,5,5,.82) 48%, rgba(5,5,5,.98));
 }
 
 .hero-card > span {
@@ -322,8 +329,18 @@ textarea {
 }
 
 .hero-card p {
-    color: var(--muted);
+    color: #e4e4e4;
     margin-bottom: 25px;
+}
+
+.hero-buttons .cta-icon {
+    filter: drop-shadow(0 0 7px rgba(255,255,255,.65));
+    animation: vipCtaPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes vipCtaPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.18); }
 }
 
 .hero-card small {
@@ -1029,8 +1046,8 @@ textarea {
 
 @media (max-width: 600px) {
     .gallery-grid { margin-right: -20px; padding-right: 20px; }
-    .gallery-grid > * { flex-basis: 84%; }
-    .gallery-item, .public-gallery-card { min-height: 390px; }
+    .gallery-grid > * { flex-basis: 70%; }
+    .gallery-item, .public-gallery-card { min-height: 260px; max-height: 330px; }
     .gallery-arrow { display: none; }
 }
 

@@ -1,10 +1,10 @@
-const CACHE_NAME = "barbearia-vip-v1";
+const CACHE_NAME = "barbearia-vip-v2";
 const PUBLIC_SHELL = [
   "/", "/index.html", "/agendar.html", "/login.html", "/confirmar.html",
   "/manifest.webmanifest", "/admin-manifest.webmanifest", "/css/style.css", "/css/agendar.css", "/css/login.css",
   "/js/script.js", "/js/site-data.js", "/js/agendar.js", "/js/login.js",
   "/js/supabase-config.js", "/js/pwa.js",
-  "/assets/app-icon-192.png", "/assets/app-icon-512.png"
+  "/assets/app-icon-192.png", "/assets/app-icon-512.png", "/assets/hero-barber-v2.webp"
 ];
 
 self.addEventListener("install", event => {

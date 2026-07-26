@@ -43,10 +43,14 @@ function formatPublicPhone(phone){
  return local.length===11?`(${local.slice(0,2)}) ${local.slice(2,7)}-${local.slice(7)}`:phone;
 }
 
-function renderLocalContent(){
- const gallery=JSON.parse(localStorage.getItem('barbeariaVipGallery')||'[]');
+async function renderPublicGallery(){
+ const {data:gallery,error}=await supabaseClient.rpc('get_public_gallery');
  const gc=document.querySelector('.gallery-grid');
- if(gc&&gallery.length)gc.innerHTML=gallery.map(item=>`<article class="public-gallery-card"><img src="${item.image}" alt="${vipEscape(item.title)}"><div class="public-gallery-overlay"><span>${vipEscape(item.title)}</span></div></article>`).join('');
+ if(error){console.error(error);return;}
+ if(gc&&gallery?.length)gc.innerHTML=gallery.map(item=>`<article class="public-gallery-card"><img src="${item.image_url}" alt="${vipEscape(item.title)}"><div class="public-gallery-overlay"><span>${vipEscape(item.title)}</span></div></article>`).join('');
+}
+
+function renderLocalPlans(){
  const section=document.getElementById('planos'); const plans=JSON.parse(localStorage.getItem('barbeariaVipPlans')||'[]'); const enabled=localStorage.getItem('barbeariaVipPlansEnabled')!=='false';
  if(section){section.hidden=!enabled;if(enabled&&plans.length){const grid=section.querySelector('.plans-grid');grid.innerHTML=plans.map(p=>`<article class="plan-card ${p.popular?'featured-plan':''}">${p.popular?'<div class="plan-badge">Mais popular</div>':''}<span>${vipEscape(p.name)}</span><h3>${vipMoney(p.price)}</h3><small>por mês</small><ul>${(p.benefits||[]).map(b=>`<li><i class="fa-solid fa-check"></i>${vipEscape(b)}</li>`).join('')}</ul><a href="https://wa.me/" class="button button-outline button-full">Escolher plano</a></article>`).join('');}}
 }
@@ -68,4 +72,8 @@ function initializeGalleryCarousel(){
  });
 }
 
-renderPublicServices();renderPublicProfessionals();renderPublicContact();renderLocalContent();initializeGalleryCarousel();
+renderPublicServices();
+renderPublicProfessionals();
+renderPublicContact();
+renderLocalPlans();
+renderPublicGallery().finally(initializeGalleryCarousel);

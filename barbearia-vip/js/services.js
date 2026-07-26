@@ -130,6 +130,32 @@ async function saveBusinessSettings(settings) {
   return data;
 }
 
+async function loadGallery() {
+  const { data, error } = await supabaseClient
+    .from("gallery")
+    .select("id,title,image_url,active,created_at")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+async function createGalleryItem(item) {
+  const ownerId = await getBusinessOwnerId();
+  const { data, error } = await supabaseClient.from("gallery").insert({
+    owner_id: ownerId,
+    title: item.title,
+    image_url: item.image_url,
+    active: true
+  }).select().single();
+  if (error) throw error;
+  return data;
+}
+
+async function deleteGalleryItem(id) {
+  const { error } = await supabaseClient.from("gallery").delete().eq("id", id);
+  if (error) throw error;
+}
+
 async function deleteBarber(id) {
   const { error } = await supabaseClient.from("barbers").delete().eq("id", id);
   if (error) throw error;
