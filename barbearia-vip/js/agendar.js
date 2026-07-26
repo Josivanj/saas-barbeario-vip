@@ -5,7 +5,7 @@ const $$ = selector => [...document.querySelectorAll(selector)];
 const bookingForm = $("#bookingForm");
 const bookingDate = $("#bookingDate");
 const timeGrid = $("#timeGrid");
-const bookingData = { serviceId: "", service: "", durationMinutes: 0, professionalId: "", professional: "", date: "", time: "", price: 0 };
+const bookingData = { serviceId: "", service: "", durationMinutes: 0, professionalId: "", professional: "", professionalPhone: "", date: "", time: "", price: 0 };
 let availabilityRequest = 0;
 
 function escapeHtml(value = "") { return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c])); }
@@ -67,8 +67,8 @@ async function loadProfessionals() {
   const container=$(".professional-options");
   const { data, error }=await supabaseClient.rpc("get_public_barbers");
   if(error || !data?.length){ container.innerHTML='<p>Nenhum barbeiro disponível.</p>'; return; }
-  container.innerHTML=data.map(p=>`<label class="booking-option professional-option"><input type="radio" name="profissional" value="${escapeHtml(p.name)}" data-id="${p.id}"><div class="professional-option-avatar">${p.image_url?`<img src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name)}">`:'<i class="fa-solid fa-user"></i>'}</div><div class="option-info"><strong>${escapeHtml(p.name)}</strong><span>${escapeHtml(p.specialty||'Profissional')}</span></div></label>`).join("");
-  container.querySelectorAll('input[name="profissional"]').forEach(input=>input.addEventListener("change",()=>{ bookingData.professionalId=input.dataset.id; bookingData.professional=input.value; $$('.professional-options .booking-option').forEach(x=>x.classList.toggle('selected',x.contains(input))); refreshAvailability(); updateSummary(); }));
+  container.innerHTML=data.map(p=>`<label class="booking-option professional-option"><input type="radio" name="profissional" value="${escapeHtml(p.name)}" data-id="${p.id}" data-phone="${escapeHtml(p.phone||'')}"><div class="professional-option-avatar">${p.image_url?`<img src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name)}">`:'<i class="fa-solid fa-user"></i>'}</div><div class="option-info"><strong>${escapeHtml(p.name)}</strong><span>${escapeHtml(p.specialty||'Profissional')}</span></div></label>`).join("");
+  container.querySelectorAll('input[name="profissional"]').forEach(input=>input.addEventListener("change",()=>{ bookingData.professionalId=input.dataset.id; bookingData.professional=input.value; bookingData.professionalPhone=input.dataset.phone||""; $$('.professional-options .booking-option').forEach(x=>x.classList.toggle('selected',x.contains(input))); refreshAvailability(); updateSummary(); }));
 }
 
 function validateStep(step) {
@@ -92,15 +92,23 @@ bookingForm.addEventListener('submit',async event=>{
   if(error){console.error(error);alert(error.message?.includes('HORARIO_INDISPONIVEL')?'Este horário não está disponível.':'Não foi possível concluir o agendamento.');await refreshAvailability();if(button)button.disabled=false;return;}
   const appointmentId=data?.id;
   const notificationToken=data?.notification_token;
-  if(!appointmentId||!notificationToken){alert('O agendamento foi criado, mas a confirmação de segurança falhou. Fale com a barbearia.');if(button)button.disabled=false;return;}
+  const confirmationToken=data?.confirmation_token;
+  if(!appointmentId||!notificationToken||!confirmationToken){alert('O agendamento foi criado, mas a confirmação de segurança falhou. Fale com a barbearia.');if(button)button.disabled=false;return;}
   const newBooking={id:appointmentId,service:bookingData.service,professional:bookingData.professional,date:bookingData.date,time:bookingData.time,name,phone,notes,status:'Aguardando confirmação',durationMinutes:bookingData.durationMinutes,price:bookingData.price};
   localStorage.setItem('barbeariaVipLatestBookingNotification',JSON.stringify(newBooking));
-  // A reserva continua salva mesmo se o provedor de WhatsApp estiver temporariamente indisponível.
+  const confirmationUrl=`${location.origin}/confirmar.html?token=${encodeURIComponent(confirmationToken)}`;
+  const barberPhone=bookingData.professionalPhone.replace(/\D/g,'');
+  const whatsappButton=$('#whatsappConfirmation');
+  // Se o envio automático não estiver configurado, o cliente encaminha a
+  // notificação segura ao WhatsApp do barbeiro selecionado.
+  const notificationMessage=`Novo agendamento na Barbearia VIP.\n\nCliente: ${name}\nServiço: ${bookingData.service}\nProfissional: ${bookingData.professional}\nData: ${formatDate(bookingData.date)}\nHorário: ${bookingData.time}\nDuração: ${durationLabel(bookingData.durationMinutes)}\nValor: ${money(bookingData.price)}\n\nConfirme ou recuse pelo link:\n${confirmationUrl}`;
+  whatsappButton.hidden=!barberPhone;
+  whatsappButton.onclick=()=>window.open(`https://wa.me/${barberPhone}?text=${encodeURIComponent(notificationMessage)}`,'_blank','noopener');
   fetch('/api/send-whatsapp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bookingId:appointmentId,notificationToken})})
-    .then(response=>response.ok?null:response.json().then(result=>console.warn(result.error)))
-    .catch(error=>console.warn('Notificação do WhatsApp não enviada:',error));
+    .then(response=>{if(response.ok)whatsappButton.hidden=true;else return response.json().then(result=>console.warn(result.error));})
+    .catch(error=>console.warn('Notificação automática não enviada; use o botão de WhatsApp:',error));
   $('#successDetails').innerHTML=`<p><strong>Cliente:</strong> ${escapeHtml(name)}</p><p><strong>Serviço:</strong> ${escapeHtml(bookingData.service)}</p><p><strong>Profissional:</strong> ${escapeHtml(bookingData.professional)}</p><p><strong>Data:</strong> ${formatDate(bookingData.date)}</p><p><strong>Horário:</strong> ${bookingData.time}</p><p><strong>Valor:</strong> ${money(bookingData.price)}</p>`;
-  bookingForm.style.display='none';$('#bookingSuccess').classList.add('visible');$('#whatsappConfirmation').onclick=()=>window.open(`https://wa.me/5593992396115?text=${encodeURIComponent(`Olá, gostaria de confirmar meu agendamento na Barbearia VIP.\n\nCliente: ${name}\nServiço: ${bookingData.service}\nProfissional: ${bookingData.professional}\nData: ${formatDate(bookingData.date)}\nHorário: ${bookingData.time}\nValor: ${money(bookingData.price)}`)}`,'_blank');window.scrollTo({top:0,behavior:'smooth'});
+  bookingForm.style.display='none';$('#bookingSuccess').classList.add('visible');window.scrollTo({top:0,behavior:'smooth'});
 });
 
 const today=new Date(), offset=today.getTimezoneOffset();bookingDate.min=new Date(today.getTime()-offset*60000).toISOString().slice(0,10);

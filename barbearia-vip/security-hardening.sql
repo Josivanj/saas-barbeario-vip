@@ -36,7 +36,8 @@ create function public.create_public_appointment(
 language plpgsql security definer set search_path=public
 as $$
 declare
-  v_owner uuid; v_duration integer; v_price numeric(10,2); v_id uuid; v_notification_token uuid;
+  v_owner uuid; v_duration integer; v_price numeric(10,2); v_id uuid;
+  v_notification_token uuid; v_confirmation_token uuid;
   v_start time; v_lunch_start time; v_lunch_end time; v_end time;
   v_candidate timestamp; v_finish timestamp; v_phone text;
 begin
@@ -70,8 +71,13 @@ begin
   ) values(
     v_owner,p_barber_id,p_service_id,trim(p_client_name),v_phone,p_date,p_time,
     v_duration,'pending',v_price,nullif(trim(coalesce(p_notes,'')),'')
-  ) returning id,notification_token into v_id,v_notification_token;
-  return jsonb_build_object('id',v_id,'notification_token',v_notification_token);
+  ) returning id,notification_token,confirmation_token
+    into v_id,v_notification_token,v_confirmation_token;
+  return jsonb_build_object(
+    'id',v_id,
+    'notification_token',v_notification_token,
+    'confirmation_token',v_confirmation_token
+  );
 end; $$;
 revoke all on function public.create_public_appointment(uuid,uuid,date,time,text,text,text) from public;
 grant execute on function public.create_public_appointment(uuid,uuid,date,time,text,text,text) to anon,authenticated;
@@ -112,7 +118,7 @@ as $$
     'status',a.status
   )
   from appointments a join services s on s.id=a.service_id join barbers b on b.id=a.barber_id
-  where a.confirmation_token=p_token and a.status in ('pending','confirmed');
+  where a.confirmation_token=p_token and a.status in ('pending','confirmed','cancelled');
 $$;
 revoke all on function public.get_confirmation_preview(uuid) from public;
 grant execute on function public.get_confirmation_preview(uuid) to anon,authenticated;
@@ -132,5 +138,23 @@ begin
 end; $$;
 revoke all on function public.confirm_public_appointment(uuid) from public;
 grant execute on function public.confirm_public_appointment(uuid) to anon,authenticated;
+
+-- O barbeiro pode recusar uma solicitação pendente; cancelada, ela deixa de
+-- bloquear o intervalo e os horários voltam a ser calculados normalmente.
+create or replace function public.decline_public_appointment(p_token uuid)
+returns jsonb language plpgsql security definer set search_path=public
+as $$
+declare v_result jsonb;
+begin
+  update appointments set status='cancelled',updated_at=now()
+  where confirmation_token=p_token and status='pending'
+    and appointment_date>=timezone('America/Fortaleza',now())::date;
+  select jsonb_build_object('id',id,'status',status) into v_result
+  from appointments where confirmation_token=p_token and status='cancelled';
+  if v_result is null then raise exception 'TOKEN_INVALIDO' using errcode='P0001'; end if;
+  return v_result;
+end; $$;
+revoke all on function public.decline_public_appointment(uuid) from public;
+grant execute on function public.decline_public_appointment(uuid) to anon,authenticated;
 
 commit;

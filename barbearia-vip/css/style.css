@@ -1058,6 +1058,13 @@ textarea {
 .confirmation-card h1 { margin: 12px 0; color: var(--white); }
 .confirmation-card > p { margin-bottom: 24px; color: var(--muted); }
 .confirmation-card .success-details { margin: 24px 0; text-align: left; }
+.confirmation-card .button { width: 100%; margin-top: 12px; }
+.button-danger {
+    color: #fff;
+    border-color: #a83232;
+    background: #8f2929;
+}
+.button-danger:hover { background: #aa3434; }
 
 @media (max-width: 600px) {
     .confirmation-card { padding: 34px 22px; }

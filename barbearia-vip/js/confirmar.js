@@ -4,6 +4,7 @@ const title = document.getElementById("confirmationTitle");
 const message = document.getElementById("confirmationMessage");
 const details = document.getElementById("confirmationDetails");
 const confirmButton = document.getElementById("confirmAppointmentButton");
+const declineButton = document.getElementById("declineAppointmentButton");
 const icon = document.querySelector(".confirmation-card .success-icon i");
 
 function safe(value = "") {
@@ -28,9 +29,11 @@ async function loadConfirmation() {
   if (error || !data) return showError("Este link é inválido ou o agendamento não existe.");
   renderDetails(data);
   if (data.status === "confirmed") return showConfirmed();
+  if (data.status === "cancelled") return showDeclined();
   title.textContent = "Confirmar este agendamento?";
-  message.textContent = "Confira os dados e toque no botão abaixo.";
+  message.textContent = "Confira os dados e escolha confirmar ou recusar.";
   confirmButton.hidden = false;
+  declineButton.hidden = false;
 }
 
 confirmButton.addEventListener("click", async () => {
@@ -43,11 +46,33 @@ confirmButton.addEventListener("click", async () => {
   showConfirmed();
 });
 
+declineButton.addEventListener("click", async () => {
+  if (!window.confirm("Deseja recusar este agendamento e liberar o horário?")) return;
+  declineButton.disabled = true;
+  confirmButton.disabled = true;
+  const { data, error } = await supabaseClient.rpc("decline_public_appointment", { p_token: token });
+  if (error || !data) {
+    declineButton.disabled = false;
+    confirmButton.disabled = false;
+    return showError("Não foi possível recusar. Tente novamente.");
+  }
+  showDeclined();
+});
+
 function showConfirmed() {
   icon.className = "fa-solid fa-check";
   title.textContent = "Agendamento confirmado!";
   message.textContent = "A confirmação foi registrada no painel da barbearia.";
   confirmButton.hidden = true;
+  declineButton.hidden = true;
+}
+
+function showDeclined() {
+  icon.className = "fa-solid fa-xmark";
+  title.textContent = "Agendamento recusado";
+  message.textContent = "O horário foi liberado para outro cliente.";
+  confirmButton.hidden = true;
+  declineButton.hidden = true;
 }
 
 function showError(text) {
@@ -55,6 +80,7 @@ function showError(text) {
   title.textContent = "Não foi possível confirmar";
   message.textContent = text;
   confirmButton.hidden = true;
+  declineButton.hidden = true;
 }
 
 loadConfirmation();
