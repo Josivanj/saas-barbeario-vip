@@ -582,11 +582,15 @@ $("#inviteAdminForm")?.addEventListener("submit", async event => {
     if (!session) throw new Error("Sua sessão expirou. Entre novamente.");
     const response = await fetch("/api/invite-admin", {
       method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-      body: JSON.stringify({ fullName: $("#inviteAdminName").value.trim(), email: $("#inviteAdminEmail").value.trim() })
+      body: JSON.stringify({
+        fullName: $("#inviteAdminName").value.trim(),
+        email: $("#inviteAdminEmail").value.trim(),
+        password: $("#inviteAdminPassword").value
+      })
     });
     const result = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(result.error || "Não foi possível enviar o convite.");
-    message.textContent = "Convite enviado com sucesso."; message.className = "admin-form-message visible success";
+    if (!response.ok) throw new Error(result.error || "Não foi possível cadastrar o administrador.");
+    message.textContent = "Administrador cadastrado. Ele já pode entrar no painel."; message.className = "admin-form-message visible success";
     event.currentTarget.reset(); businessAdmins = await loadBusinessAdmins(); renderBusinessAdmins();
   } catch (error) {
     message.textContent = error.message; message.className = "admin-form-message visible error";
