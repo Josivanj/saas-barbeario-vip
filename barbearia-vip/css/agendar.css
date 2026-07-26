@@ -655,24 +655,31 @@
 }
 
 .booking-haircut-picker {
-    margin-top: 32px;
-    padding-top: 28px;
-    border-top: 1px solid rgba(255, 255, 255, .08);
+    margin-top: 8px;
 }
 
-.haircut-picker-heading {
+.haircut-picker-heading,
+.service-package-heading {
     margin-bottom: 18px;
 }
 
-.haircut-picker-heading span {
+.haircut-picker-heading span,
+.service-package-heading span {
     color: var(--gold-light);
     font-weight: 800;
 }
 
-.haircut-picker-heading p {
+.haircut-picker-heading p,
+.service-package-heading p {
     margin-top: 5px;
     color: var(--muted);
     font-size: 12px;
+}
+
+.service-package-heading {
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px solid rgba(255, 255, 255, .08);
 }
 
 .haircut-style-options {

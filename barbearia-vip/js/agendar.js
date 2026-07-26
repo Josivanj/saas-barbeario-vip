@@ -61,7 +61,7 @@ async function loadServices() {
   const { data, error } = await supabaseClient.from("services").select("id,name,price,duration_minutes,image_url").eq("active",true).order("created_at");
   if (error || !data?.length) { container.innerHTML='<p>Não foi possível carregar os serviços.</p>'; return; }
   container.innerHTML=data.map(s=>`<label class="booking-option"><input type="radio" name="servico" value="${escapeHtml(s.name)}" data-id="${s.id}" data-price="${s.price}" data-minutes="${s.duration_minutes}"><div class="option-icon">${s.image_url?`<img src="${s.image_url}" alt="">`:'<i class="fa-solid fa-scissors"></i>'}</div><div class="option-info"><strong>${escapeHtml(s.name)}</strong><span>${durationLabel(s.duration_minutes)}</span></div><div class="option-price">${money(s.price)}</div></label>`).join("");
-  container.querySelectorAll('input[name="servico"]').forEach(input=>input.addEventListener("change",()=>{ bookingData.serviceId=input.dataset.id; bookingData.service=input.value; bookingData.price=Number(input.dataset.price); bookingData.durationMinutes=Number(input.dataset.minutes); $$('.services-options .booking-option').forEach(x=>x.classList.toggle('selected',x.contains(input))); $("#bookingHaircutPicker").hidden=!/corte/i.test(bookingData.service); refreshAvailability(); updateSummary(); }));
+  container.querySelectorAll('input[name="servico"]').forEach(input=>input.addEventListener("change",()=>{ bookingData.serviceId=input.dataset.id; bookingData.service=input.value; bookingData.price=Number(input.dataset.price); bookingData.durationMinutes=Number(input.dataset.minutes); $$('.services-options .booking-option').forEach(x=>x.classList.toggle('selected',x.contains(input))); refreshAvailability(); updateSummary(); }));
   const requested=new URLSearchParams(location.search).get("service"); const input=requested&&container.querySelector(`input[data-id="${CSS.escape(requested)}"]`); if(input){input.checked=true;input.dispatchEvent(new Event("change"));}
 }
 
@@ -91,8 +91,8 @@ async function loadProfessionals() {
 }
 
 function validateStep(step) {
-  if(step===1&&!bookingData.service){alert("Escolha um serviço para continuar.");return false;}
-  if(step===1&&/corte/i.test(bookingData.service)&&!bookingData.haircutStyle){alert("Escolha o estilo do corte para continuar.");return false;}
+  if(step===1&&!bookingData.haircutStyle){alert("Escolha o modelo do corte para continuar.");return false;}
+  if(step===1&&!bookingData.service){alert("Escolha se deseja somente corte ou adicionar barba.");return false;}
   if(step===2&&!bookingData.professional){alert("Escolha um profissional para continuar.");return false;}
   if(step===3&&(!bookingData.date||!bookingData.time)){alert(!bookingData.date?"Escolha a data do agendamento.":"Escolha um horário.");return false;}
   return true;
