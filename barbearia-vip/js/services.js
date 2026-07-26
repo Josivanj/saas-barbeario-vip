@@ -91,7 +91,7 @@ async function saveBarber(barber) {
   const payload = {
     name: barber.name, specialty: barber.specialty || null, phone: barber.whatsapp || null, instagram: barber.instagram || null,
     image_url: barber.image || null, work_start: barber.work_start, lunch_start: barber.lunch_start,
-    lunch_end: barber.lunch_end, work_end: barber.work_end, active: true
+    lunch_end: barber.lunch_end, work_end: barber.work_end, work_days: barber.work_days, email: barber.email || null, active: true
   };
   if (barber.id && uuidPattern.test(String(barber.id))) {
     const { data, error } = await supabaseClient.from("barbers").update(payload).eq("id", barber.id).select().single();
@@ -136,10 +136,22 @@ async function deleteBarber(id) {
 }
 
 async function loadAppointments() {
-  const { data, error } = await supabaseClient.from("appointments")
-    .select("id,client_name,appointment_date,appointment_time,duration_minutes,status,services(name),barbers(name)")
+  const profile = window.BARBEARIA_VIP_PROFILE || {};
+  let query = supabaseClient.from("appointments")
+    .select("id,barber_id,client_name,appointment_date,appointment_time,duration_minutes,status,services(name),barbers(name)")
     .order("appointment_date", { ascending: false }).order("appointment_time", { ascending: false });
+  if (profile.role === "barber" && profile.barber_id) query = query.eq("barber_id", profile.barber_id);
+  const { data, error } = await query;
   if (error) throw error;
-  return (data || []).map(a => ({ id:a.id, name:a.client_name, service:a.services?.name, professional:a.barbers?.name,
+  return (data || []).map(a => ({ id:a.id, barberId:a.barber_id, name:a.client_name, service:a.services?.name, professional:a.barbers?.name,
     date:a.appointment_date, time:String(a.appointment_time).slice(0,5), durationMinutes:a.duration_minutes, status:a.status }));
+}
+
+async function updateAppointmentStatus(id, status) {
+  const { data, error } = await supabaseClient.rpc("update_appointment_status", {
+    p_appointment_id: id,
+    p_status: status
+  });
+  if (error) throw error;
+  return data;
 }

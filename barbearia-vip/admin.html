@@ -282,6 +282,27 @@
           <div class="admin-field"><label for="professionalWorkEnd">Hora de saída</label><input id="professionalWorkEnd" type="time" required value="18:00"></div>
         </div>
         <div class="admin-field">
+          <label>Dias em que trabalha</label>
+          <div class="admin-weekdays" id="professionalWorkDays">
+            <label><input type="checkbox" value="1" checked> Seg</label>
+            <label><input type="checkbox" value="2" checked> Ter</label>
+            <label><input type="checkbox" value="3" checked> Qua</label>
+            <label><input type="checkbox" value="4" checked> Qui</label>
+            <label><input type="checkbox" value="5" checked> Sex</label>
+            <label><input type="checkbox" value="6" checked> Sáb</label>
+            <label><input type="checkbox" value="0"> Dom</label>
+          </div>
+          <small>Essa configuração se repete automaticamente todas as semanas.</small>
+        </div>
+        <fieldset class="admin-access-fields" id="professionalAccessFields">
+          <legend>Acesso do barbeiro ao painel</legend>
+          <div class="admin-form-row">
+            <div class="admin-field"><label for="professionalEmail">E-mail de acesso</label><input id="professionalEmail" type="email" autocomplete="off" placeholder="barbeiro@email.com"></div>
+            <div class="admin-field"><label for="professionalPassword">Senha inicial</label><input id="professionalPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="12+ caracteres, maiúscula, número e símbolo"></div>
+          </div>
+          <small>Preencha ao cadastrar. O barbeiro usará o mesmo login do painel administrativo.</small>
+        </fieldset>
+        <div class="admin-field">
           <label for="professionalImage">Foto</label>
           <input id="professionalImage" type="file" accept="image/*">
         </div>

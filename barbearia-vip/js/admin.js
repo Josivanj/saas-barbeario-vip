@@ -193,6 +193,11 @@ function formatDuration(totalMinutes) {
   return remaining ? `${hourLabel} e ${remaining} minutos` : hourLabel;
 }
 
+function workDaysLabel(days = [1, 2, 3, 4, 5, 6]) {
+  const names = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+  return days.slice().sort((a, b) => a - b).map(day => names[day]).join(", ");
+}
+
 function updateDashboard() {
   $("#servicesTotal").textContent = services.length;
   $("#professionalsTotal").textContent = professionals.length;
@@ -262,6 +267,7 @@ function renderProfessionals() {
         <p>${escapeHtml(item.specialty)}</p>
         ${item.phone ? `<p><i class="fa-brands fa-whatsapp"></i> ${escapeHtml(item.phone)}</p>` : ""}
         <p><i class="fa-regular fa-clock"></i> ${String(item.work_start).slice(0,5)}–${String(item.lunch_start).slice(0,5)} / ${String(item.lunch_end).slice(0,5)}–${String(item.work_end).slice(0,5)}</p>
+        <p><i class="fa-regular fa-calendar"></i> ${escapeHtml(workDaysLabel(item.work_days))}</p>
 
         <div class="admin-card-actions admin-card-actions-single">
           <button class="admin-action" data-edit-professional="${item.id}">
@@ -321,6 +327,11 @@ function renderBookings() {
       <div><span>Data</span><strong>${formatDate(item.date)}</strong></div>
       <div><span>Horário</span><strong>${escapeHtml(item.time || "—")}</strong></div>
       <div class="admin-status">${escapeHtml(bookingStatusLabel(item.status))}</div>
+      <div class="admin-booking-actions">
+        ${item.status === "pending" ? `<button class="admin-action" data-booking-status="${item.id}:confirmed"><i class="fa-solid fa-check"></i> Confirmar</button>` : ""}
+        ${["pending","confirmed"].includes(item.status) ? `<button class="admin-action delete" data-booking-status="${item.id}:cancelled"><i class="fa-solid fa-xmark"></i> Recusar</button>` : ""}
+        ${item.status === "confirmed" ? `<button class="admin-action" data-booking-status="${item.id}:completed"><i class="fa-solid fa-check-double"></i> Concluir</button>` : ""}
+      </div>
     </article>
   `).join("");
 
@@ -376,6 +387,10 @@ function resetProfessionalForm() {
   $("#professionalId").value = "";
   $("#professionalModalTitle").textContent = "Novo barbeiro";
   professionalImage = "";
+  $$("#professionalWorkDays input").forEach(input => { input.checked = input.value !== "0"; });
+  $("#professionalEmail").value = "";
+  $("#professionalPassword").value = "";
+  $("#professionalAccessFields").hidden = false;
   preview("professionalImagePreview", "");
 }
 
@@ -392,6 +407,11 @@ function editProfessional(id) {
   $("#professionalLunchStart").value = String(item.lunch_start || "12:00").slice(0,5);
   $("#professionalLunchEnd").value = String(item.lunch_end || "13:00").slice(0,5);
   $("#professionalWorkEnd").value = String(item.work_end || "18:00").slice(0,5);
+  const workDays = item.work_days || [1,2,3,4,5,6];
+  $$("#professionalWorkDays input").forEach(input => { input.checked = workDays.includes(Number(input.value)); });
+  $("#professionalEmail").value = item.email || "";
+  $("#professionalPassword").value = "";
+  $("#professionalAccessFields").hidden = true;
   $("#professionalModalTitle").textContent = "Editar barbeiro";
 
   professionalImage = item.image_url || "";
@@ -496,10 +516,27 @@ $("#professionalForm")?.addEventListener("submit", async event => {
     specialty: $("#professionalSpecialty").value.trim(),
     whatsapp: $("#professionalWhatsapp").value.trim(),
     instagram: $("#professionalInstagram").value.trim(),
+    email: $("#professionalEmail").value.trim(),
     image: professionalImage,
-    work_start: workStart, lunch_start: lunchStart, lunch_end: lunchEnd, work_end: workEnd
+    work_start: workStart, lunch_start: lunchStart, lunch_end: lunchEnd, work_end: workEnd,
+    work_days: $$("#professionalWorkDays input:checked").map(input => Number(input.value))
   };
-  try { await saveBarber(data); professionals=await loadBarbers(); renderProfessionals(); updateDashboard(); closeModal("professionalModal"); }
+  if (!data.work_days.length) { alert("Selecione pelo menos um dia de trabalho."); return; }
+  try {
+    const savedBarber = await saveBarber(data);
+    const password = $("#professionalPassword").value;
+    if (!id && data.email && password) {
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      const response = await fetch("/api/create-barber-access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${sessionData.session?.access_token || ""}` },
+        body: JSON.stringify({ barberId: savedBarber.id, email: data.email, password, fullName: data.name })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Barbeiro salvo, mas o acesso não foi criado.");
+    }
+    professionals=await loadBarbers(); renderProfessionals(); updateDashboard(); closeModal("professionalModal");
+  }
   catch(error) { showError(error,"Não foi possível salvar o barbeiro."); }
 });
 
@@ -528,6 +565,21 @@ document.addEventListener("click", async event => {
   const professionalEdit = event.target.closest("[data-edit-professional]");
   const professionalDelete = event.target.closest("[data-delete-professional]");
   const galleryDelete = event.target.closest("[data-delete-gallery]");
+  const bookingStatus = event.target.closest("[data-booking-status]");
+
+  if (bookingStatus) {
+    const [id, status] = bookingStatus.dataset.bookingStatus.split(":");
+    const action = status === "cancelled" ? "recusar" : status === "completed" ? "concluir" : "confirmar";
+    if (!confirm(`Deseja ${action} este agendamento?`)) return;
+    try {
+      await updateAppointmentStatus(id, status);
+      bookings = await loadAppointments();
+      renderBookings();
+    } catch (error) {
+      showError(error, "Não foi possível atualizar o agendamento.");
+    }
+    return;
+  }
 
   if (serviceEdit) {
     editService(serviceEdit.dataset.editService);
@@ -702,6 +754,25 @@ function showBookingNotification(booking) {
 
   if ("Notification" in window && Notification.permission === "granted") {
     new Notification("Barbearia VIP — Novo agendamento", { body: message });
+    playReminderTone();
+  }
+}
+
+function playReminderTone() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const context = new AudioContext();
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.frequency.value = 880;
+    gain.gain.setValueAtTime(.12, context.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001, context.currentTime + .7);
+    oscillator.connect(gain).connect(context.destination);
+    oscillator.start();
+    oscillator.stop(context.currentTime + .7);
+  } catch (error) {
+    console.warn("Não foi possível tocar o lembrete.", error);
   }
 }
 
@@ -726,10 +797,25 @@ window.addEventListener("storage", event => {
 });
 
 async function initializeAdmin() {
+  await window.BARBEARIA_VIP_AUTH_READY;
+  const profile = window.BARBEARIA_VIP_PROFILE || {};
+  const isBarber = profile.role === "barber";
+  if (isBarber) {
+    $$(".admin-menu-item").forEach(item => {
+      item.hidden = !["dashboard", "bookings"].includes(item.dataset.section);
+    });
+    $("#dashboardSection .admin-section-heading h2").textContent = "Minha agenda";
+    document.querySelector(".admin-user strong").textContent = profile.full_name || "Barbeiro";
+    document.querySelector(".admin-user span").textContent = "Profissional";
+  }
   addNotificationButton();
 
   try {
-    [services, professionals, bookings, businessAdmins, businessSettings] = await Promise.all([loadServices(), loadBarbers(), loadAppointments(), loadBusinessAdmins(), loadBusinessSettings()]);
+    if (isBarber) {
+      bookings = await loadAppointments();
+    } else {
+      [services, professionals, bookings, businessAdmins, businessSettings] = await Promise.all([loadServices(), loadBarbers(), loadAppointments(), loadBusinessAdmins(), loadBusinessSettings()]);
+    }
   } catch (error) {
     showError(error, "Não foi possível carregar os serviços do Supabase.");
     services = []; professionals = []; bookings = []; businessAdmins = []; businessSettings = { whatsapp: "", instagram: "" };
@@ -744,6 +830,41 @@ async function initializeAdmin() {
   $("#businessInstagram").value = businessSettings.instagram || "";
   updateDashboard();
   checkNewBookings();
+  subscribeToBookings(profile);
+  checkUpcomingReminders();
+  window.setInterval(checkUpcomingReminders, 60000);
+}
+
+function subscribeToBookings(profile) {
+  const ownerId = profile.business_owner_id;
+  if (!ownerId) return;
+  supabaseClient.channel(`appointments-${ownerId}`)
+    .on("postgres_changes", { event: "*", schema: "public", table: "appointments", filter: `owner_id=eq.${ownerId}` }, async payload => {
+      if (profile.role === "barber" && payload.new?.barber_id !== profile.barber_id && payload.old?.barber_id !== profile.barber_id) return;
+      bookings = await loadAppointments();
+      renderBookings();
+      if (payload.eventType === "INSERT") showBookingNotification(bookings.find(item => item.id === payload.new.id));
+    })
+    .subscribe();
+}
+
+function checkUpcomingReminders() {
+  if (!bookings.length || !("Notification" in window) || Notification.permission !== "granted") return;
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+  bookings.filter(item => item.date === today && ["pending","confirmed"].includes(item.status)).forEach(item => {
+    const [hours, minutes] = item.time.split(":").map(Number);
+    const start = new Date(now); start.setHours(hours, minutes, 0, 0);
+    const difference = start - now;
+    const reminderKey = `barbeariaVipReminder:${item.id}:${item.date}`;
+    if (difference > 0 && difference <= 30 * 60000 && !sessionStorage.getItem(reminderKey)) {
+      new Notification("Barbearia VIP — Atendimento próximo", {
+        body: `${item.name} está agendado para ${item.time}.`
+      });
+      playReminderTone();
+      sessionStorage.setItem(reminderKey, "1");
+    }
+  });
 }
 
 initializeAdmin();

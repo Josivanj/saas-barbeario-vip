@@ -1,4 +1,4 @@
-(async function protectAdmin() {
+window.BARBEARIA_VIP_AUTH_READY = (async function protectAdmin() {
   document.documentElement.classList.add('auth-checking');
   try {
     const { data, error } = await supabaseClient.auth.getSession();
@@ -7,8 +7,8 @@
       return;
     }
     const { data: profile, error: profileError } = await supabaseClient
-      .from('profiles').select('role,business_owner_id').eq('id', data.session.user.id).single();
-    if (profileError || !profile || !['owner', 'admin'].includes(profile.role)) {
+      .from('profiles').select('role,business_owner_id,barber_id,full_name').eq('id', data.session.user.id).single();
+    if (profileError || !profile || !['owner', 'admin', 'barber'].includes(profile.role)) {
       await supabaseClient.auth.signOut();
       window.location.replace('login.html');
       return;
