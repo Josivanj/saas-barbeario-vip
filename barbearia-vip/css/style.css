@@ -1054,11 +1054,15 @@ textarea {
 /* Galeria móvel: uma foto horizontal por vez, sem faixas pretas. */
 @media (max-width: 900px) {
     #galeria.section {
-        padding: 65px 0 45px;
+        padding: 65px 0 25px;
     }
 
     #galeria .section-heading {
         margin-bottom: 30px;
+    }
+
+    #planos.section {
+        padding-top: 55px;
     }
 
     .gallery-grid {
