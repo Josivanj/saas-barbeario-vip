@@ -54,6 +54,6 @@ where not exists (
 -- Remove apenas os dados demonstrativos antigos da tela pública.
 update public.services
 set active = false
-where lower(trim(name)) in ('teste', 'test');
+where lower(trim(name)) in ('teste', 'test', 'sus', 'aaaa');
 
 commit;
